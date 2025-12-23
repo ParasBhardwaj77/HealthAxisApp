@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Users, 
@@ -44,6 +44,7 @@ const menus = {
 export default function Sidebar({ role }) {
   const sidebarRef = useRef(null);
   const links = menus[role] || menus.Patient;
+  const navigate = useNavigate();
 
   useEffect(() => {
     gsap.fromTo(sidebarRef.current, 
@@ -51,6 +52,10 @@ export default function Sidebar({ role }) {
       { x: 0, opacity: 1, duration: 0.5, ease: 'power3.out' }
     );
   }, []);
+
+  const handleLogout = () => {
+    navigate('/login');
+  };
 
   return (
     <aside ref={sidebarRef} className="w-64 bg-white dark:bg-dark-800 border-r border-gray-200 dark:border-gray-800 hidden md:flex flex-col h-screen sticky top-0">
@@ -84,7 +89,10 @@ export default function Sidebar({ role }) {
       </div>
 
       <div className="p-4 border-t border-gray-200 dark:border-gray-800">
-        <button className="flex items-center px-4 py-2 w-full text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors">
+        <button 
+            onClick={handleLogout}
+            className="flex items-center px-4 py-2 w-full text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors"
+        >
             <LogOut className="mr-3 h-5 w-5" />
             Logout
         </button>
@@ -92,3 +100,4 @@ export default function Sidebar({ role }) {
     </aside>
   );
 }
+

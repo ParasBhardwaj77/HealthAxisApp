@@ -8,6 +8,7 @@ import AdminPatients from './pages/admin/Patients';
 import AdminAppointments from './pages/admin/Appointments';
 import AdminSettings from './pages/admin/Settings';
 import AddUser from './pages/admin/AddUser';
+import RecentActivity from './pages/admin/RecentActivity';
 import DoctorDashboard from './pages/doctor/DoctorDashboard';
 import ReceptionistDashboard from './pages/receptionist/ReceptionistDashboard';
 import PatientDashboard from './pages/patient/PatientDashboard';
@@ -37,6 +38,7 @@ function App() {
             <Route path="appointments" element={<AdminAppointments />} />
             <Route path="settings" element={<AdminSettings />} />
             <Route path="add-user" element={<AddUser />} />
+            <Route path="recent-activity" element={<RecentActivity />} />
         </Route>
         
         <Route path="/doctor" element={<DashboardLayout role="Doctor" />}>

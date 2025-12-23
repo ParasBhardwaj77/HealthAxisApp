@@ -27,32 +27,24 @@ export default function AdminDashboard() {
             title="Total Patients" 
             value="12,345" 
             icon={Users} 
-            trend="up" 
-            trendValue="+12%" 
             color="primary" 
         />
         <StatCard 
             title="Total Doctors" 
             value="48" 
             icon={UserPlus} 
-            trend="up" 
-            trendValue="+4%" 
             color="teal" 
         />
         <StatCard 
             title="Total Appointments" 
             value="1,203" 
             icon={Calendar} 
-            trend="down" 
-            trendValue="-2%" 
             color="purple" 
         />
         <StatCard 
             title="Pending Appointments" 
             value="56" 
             icon={Calendar} 
-            trend="up" 
-            trendValue="+12%" 
             color="orange" 
         />
       </div>
@@ -66,9 +58,7 @@ export default function AdminDashboard() {
                     <h3 className="font-bold text-lg text-gray-900 dark:text-white">Revenue Analytics</h3>
                     <div className="flex items-center gap-2">
                         <span className="text-2xl font-bold text-gray-900 dark:text-white">$45,230</span>
-                        <span className="text-xs font-medium text-green-600 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-full flex items-center">
-                            +8.5%
-                        </span>
+
                     </div>
                 </div>
                 <select className="bg-gray-50 dark:bg-dark-700 border-none rounded-lg text-sm px-3 py-1 focus:ring-0">
@@ -113,7 +103,9 @@ export default function AdminDashboard() {
                     </div>
                 ))}
             </div>
-            <Button variant="ghost" className="w-full mt-4 text-sm">View All Activity</Button>
+            <Link to="/admin/recent-activity">
+                <Button variant="ghost" className="w-full mt-4 text-sm">View All Activity</Button>
+            </Link>
         </div>
       </div>
     </div>

@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '../../components/ui/Button';
 import { ChevronLeft, User, Mail, Phone, Lock, Upload } from 'lucide-react';
 
 export default function AddUser() {
   const navigate = useNavigate();
-  const [role, setRole] = useState('Patient');
+  const location = useLocation();
+  const [role, setRole] = useState(location.state?.role || 'Patient');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = (e) => {
