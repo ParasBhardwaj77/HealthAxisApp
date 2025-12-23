@@ -1,21 +1,28 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import AuthLayout from './layouts/AuthLayout';
-import DashboardLayout from './layouts/DashboardLayout';
-import Login from './pages/auth/Login';
-import AdminDashboard from './pages/admin/AdminDashboard';
-import Doctors from './pages/admin/Doctors';
-import AdminPatients from './pages/admin/Patients';
-import AdminAppointments from './pages/admin/Appointments';
-import AdminSettings from './pages/admin/Settings';
-import AddUser from './pages/admin/AddUser';
-import RecentActivity from './pages/admin/RecentActivity';
-import DoctorDashboard from './pages/doctor/DoctorDashboard';
-import ReceptionistDashboard from './pages/receptionist/ReceptionistDashboard';
-import PatientDashboard from './pages/patient/PatientDashboard';
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import AuthLayout from "./layouts/AuthLayout";
+import DashboardLayout from "./layouts/DashboardLayout";
+import Login from "./pages/auth/Login";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import Doctors from "./pages/admin/Doctors";
+import AdminPatients from "./pages/admin/Patients";
+import AdminAppointments from "./pages/admin/Appointments";
+import AdminSettings from "./pages/admin/Settings";
+import AddUser from "./pages/admin/AddUser";
+import RecentActivity from "./pages/admin/RecentActivity";
+import DoctorDashboard from "./pages/doctor/DoctorDashboard";
+import PatientDashboard from "./pages/patient/PatientDashboard";
+import PatientAppointments from "./pages/patient/AppointmentsList";
+import PatientReports from "./pages/patient/ReportsList";
+import DoctorSettings from "./pages/doctor/Settings";
+import PatientSettings from "./pages/patient/Settings";
 
-import LandingPage from './pages/LandingPage';
+import LandingPage from "./pages/LandingPage";
 
-const Register = () => <div className="p-8 text-center bg-white dark:bg-dark-800 rounded-3xl">Register Page</div>;
+const Register = () => (
+  <div className="p-8 text-center bg-white dark:bg-dark-800 rounded-3xl">
+    Register Page
+  </div>
+);
 
 function App() {
   return (
@@ -26,31 +33,31 @@ function App() {
 
         {/* Auth Routes */}
         <Route element={<AuthLayout />}>
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
         </Route>
 
         {/* Dashboard Routes (Protected in real app) */}
         <Route path="/admin" element={<DashboardLayout role="Admin" />}>
-            <Route index element={<AdminDashboard />} />
-            <Route path="doctors" element={<Doctors />} />
-            <Route path="patients" element={<AdminPatients />} />
-            <Route path="appointments" element={<AdminAppointments />} />
-            <Route path="settings" element={<AdminSettings />} />
-            <Route path="add-user" element={<AddUser />} />
-            <Route path="recent-activity" element={<RecentActivity />} />
-        </Route>
-        
-        <Route path="/doctor" element={<DashboardLayout role="Doctor" />}>
-            <Route index element={<DoctorDashboard />} />
+          <Route index element={<AdminDashboard />} />
+          <Route path="doctors" element={<Doctors />} />
+          <Route path="patients" element={<AdminPatients />} />
+          <Route path="appointments" element={<AdminAppointments />} />
+          <Route path="settings" element={<AdminSettings />} />
+          <Route path="add-user" element={<AddUser />} />
+          <Route path="recent-activity" element={<RecentActivity />} />
         </Route>
 
-        <Route path="/receptionist" element={<DashboardLayout role="Receptionist" />}>
-            <Route index element={<ReceptionistDashboard />} />
+        <Route path="/doctor" element={<DashboardLayout role="Doctor" />}>
+          <Route index element={<DoctorDashboard />} />
+          <Route path="settings" element={<DoctorSettings />} />
         </Route>
 
         <Route path="/patient" element={<DashboardLayout role="Patient" />}>
-            <Route index element={<PatientDashboard />} />
+          <Route index element={<PatientDashboard />} />
+          <Route path="appointments" element={<PatientAppointments />} />
+          <Route path="records" element={<PatientReports />} />
+          <Route path="settings" element={<PatientSettings />} />
         </Route>
 
         {/* Catch all */}

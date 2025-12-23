@@ -18,7 +18,6 @@ export default function AdminDashboard() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="secondary">Download Report</Button>
           <Link to="/admin/add-user">
             <Button>Add New User</Button>
           </Link>
