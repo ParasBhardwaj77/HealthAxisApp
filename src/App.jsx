@@ -15,6 +15,7 @@ import PatientAppointments from "./pages/patient/AppointmentsList";
 import PatientReports from "./pages/patient/ReportsList";
 import DoctorSettings from "./pages/doctor/Settings";
 import PatientSettings from "./pages/patient/Settings";
+import VideoCall from "./pages/doctor/VideoCall";
 
 import LandingPage from "./pages/LandingPage";
 
@@ -51,6 +52,7 @@ function App() {
         <Route path="/doctor" element={<DashboardLayout role="Doctor" />}>
           <Route index element={<DoctorDashboard />} />
           <Route path="settings" element={<DoctorSettings />} />
+          <Route path="video-call/:id" element={<VideoCall />} />
         </Route>
 
         <Route path="/patient" element={<DashboardLayout role="Patient" />}>
