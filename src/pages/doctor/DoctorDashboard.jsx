@@ -44,11 +44,17 @@ const patientsData = [
 
 export default function DoctorDashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPendingModalOpen, setIsPendingModalOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleConsult = (patient) => {
     navigate(`/doctor/video-call/${patient.id}`);
   };
+
+  const completedConsultations = [
+    { id: 1, name: "Alice Smith", date: "Oct 24, 2024", duration: "12:45" },
+    { id: 2, name: "Robert Jones", date: "Oct 24, 2024", duration: "08:30" },
+  ];
 
   return (
     <div className="space-y-6">
@@ -90,6 +96,7 @@ export default function DoctorDashboard() {
           trend="down"
           trendValue="Urgent"
           color="primary"
+          onClick={() => setIsPendingModalOpen(true)}
         />
       </div>
 
@@ -209,6 +216,68 @@ export default function DoctorDashboard() {
                 className="rounded-xl"
               >
                 Cancel
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Pending Reports Modal */}
+      {isPendingModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-dark-800 w-full max-w-lg rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-700">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                Pending Reports
+              </h2>
+              <button
+                onClick={() => setIsPendingModalOpen(false)}
+                className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-dark-700 text-gray-500 transition-colors"
+                aria-label="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-4 max-h-[60vh] overflow-y-auto">
+              <div className="space-y-3">
+                {completedConsultations.map((consult) => (
+                  <div
+                    key={consult.id}
+                    className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 dark:bg-dark-700/50 hover:bg-gray-100 dark:hover:bg-dark-700 transition-all border border-transparent"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-full bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center text-teal-600 dark:text-teal-400">
+                        <User className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-gray-900 dark:text-white text-sm">
+                          {consult.name}
+                        </h4>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          Ended at {consult.date} • {consult.duration} min
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="px-6 rounded-full border-primary-500 text-primary-500 hover:bg-primary-50"
+                    >
+                      Generate Report
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="p-6 bg-gray-50 dark:bg-dark-700/30 border-t border-gray-100 dark:border-gray-700 flex justify-end">
+              <Button
+                variant="outline"
+                onClick={() => setIsPendingModalOpen(false)}
+                className="rounded-xl"
+              >
+                Close
               </Button>
             </div>
           </div>
