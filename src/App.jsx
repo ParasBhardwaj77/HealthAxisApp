@@ -16,14 +16,9 @@ import PatientReports from "./pages/patient/ReportsList";
 import DoctorSettings from "./pages/doctor/Settings";
 import PatientSettings from "./pages/patient/Settings";
 import VideoCall from "./pages/doctor/VideoCall";
+import Register from "./pages/auth/Register";
 
 import LandingPage from "./pages/LandingPage";
-
-const Register = () => (
-  <div className="p-8 text-center bg-white dark:bg-dark-800 rounded-3xl">
-    Register Page
-  </div>
-);
 
 function App() {
   return (
