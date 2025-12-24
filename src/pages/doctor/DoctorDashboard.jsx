@@ -51,10 +51,25 @@ export default function DoctorDashboard() {
     navigate(`/doctor/video-call/${patient.id}`);
   };
 
-  const completedConsultations = [
+  const [completedConsultations, setCompletedConsultations] = useState([
     { id: 1, name: "Alice Smith", date: "Oct 24, 2024", duration: "12:45" },
     { id: 2, name: "Robert Jones", date: "Oct 24, 2024", duration: "08:30" },
-  ];
+  ]);
+
+  const handleUploadClick = (consultId) => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        console.log(`Uploaded ${file.name} for consultation ${consultId}`);
+        setCompletedConsultations((prev) =>
+          prev.filter((c) => c.id !== consultId)
+        );
+      }
+    };
+    input.click();
+  };
 
   return (
     <div className="space-y-6">
@@ -91,7 +106,7 @@ export default function DoctorDashboard() {
         />
         <StatCard
           title="Pending Reports"
-          value="5"
+          value={completedConsultations.length}
           icon={FileText}
           trend="down"
           trendValue="Urgent"
@@ -263,8 +278,9 @@ export default function DoctorDashboard() {
                       size="sm"
                       variant="outline"
                       className="px-6 rounded-full border-primary-500 text-primary-500 hover:bg-primary-50"
+                      onClick={() => handleUploadClick(consult.id)}
                     >
-                      Generate Report
+                      Upload Report
                     </Button>
                   </div>
                 ))}
