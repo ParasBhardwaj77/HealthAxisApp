@@ -24,12 +24,6 @@ const menus = {
   ],
   Doctor: [
     { name: "Dashboard", path: "/doctor", icon: LayoutDashboard },
-    { name: "Patients", path: "/doctor/patients", icon: Users },
-    {
-      name: "Prescriptions",
-      path: "/doctor/prescriptions",
-      icon: ClipboardList,
-    },
     { name: "Settings", path: "/doctor/settings", icon: Settings },
   ],
 
