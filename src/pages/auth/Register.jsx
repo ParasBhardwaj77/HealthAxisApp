@@ -1,15 +1,53 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Button } from "../../components/ui/Button";
-import { User, Mail, Lock, UserCircle } from "lucide-react";
+import { User, Mail, Lock } from "lucide-react";
 
 export default function Register() {
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Simulate registration
-    navigate("/patient");
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await fetch("http://localhost:8080/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(form),
+      });
+
+      if (!res.ok) {
+        const msg = await res.text();
+        throw new Error(msg || "Registration failed");
+      }
+
+      // success → go to login
+      navigate("/login");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -21,45 +59,64 @@ export default function Register() {
         Join HealthAxis today
       </p>
 
+      {error && (
+        <p className="text-red-500 text-sm text-center mb-4">{error}</p>
+      )}
+
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* NAME */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-2">
+          <label className="block text-sm font-medium mb-1 flex items-center gap-2">
             <User className="w-4 h-4" /> Full Name
           </label>
           <input
+            name="name"
             type="text"
+            value={form.name}
+            onChange={handleChange}
             required
-            className="w-full px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-dark-900 focus:ring-2 focus:ring-primary-500 outline-none transition-all"
             placeholder="John Doe"
+            autoComplete="name"
+            className="w-full px-4 py-2 rounded-xl border bg-gray-50 dark:bg-dark-900 focus:ring-2 focus:ring-primary-500"
           />
         </div>
 
+        {/* EMAIL */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-2">
+          <label className="block text-sm font-medium mb-1 flex items-center gap-2">
             <Mail className="w-4 h-4" /> Email Address
           </label>
           <input
+            name="email"
             type="email"
+            value={form.email}
+            onChange={handleChange}
             required
-            className="w-full px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-dark-900 focus:ring-2 focus:ring-primary-500 outline-none transition-all"
             placeholder="john@example.com"
+            autoComplete="email"
+            className="w-full px-4 py-2 rounded-xl border bg-gray-50 dark:bg-dark-900 focus:ring-2 focus:ring-primary-500"
           />
         </div>
 
+        {/* PASSWORD */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-2">
+          <label className="block text-sm font-medium mb-1 flex items-center gap-2">
             <Lock className="w-4 h-4" /> Password
           </label>
           <input
+            name="password"
             type="password"
+            value={form.password}
+            onChange={handleChange}
             required
-            className="w-full px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-dark-900 focus:ring-2 focus:ring-primary-500 outline-none transition-all"
             placeholder="••••••••"
+            autoComplete="new-password"
+            className="w-full px-4 py-2 rounded-xl border bg-gray-50 dark:bg-dark-900 focus:ring-2 focus:ring-primary-500"
           />
         </div>
 
-        <Button type="submit" className="w-full mt-2">
-          Create Account
+        <Button type="submit" className="w-full mt-2" disabled={loading}>
+          {loading ? "Creating..." : "Create Account"}
         </Button>
       </form>
 
