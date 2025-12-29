@@ -5,55 +5,55 @@ import {
   Calendar as CalendarIcon,
   CheckCircle,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "../../components/ui/Button";
 import Table from "../../components/Table";
 
-const doctorsData = [
-  {
-    id: 1,
-    name: "Dr. Sarah Wilson",
-    specialty: "Cardiology",
-    email: "sarah.w@healthaxis.com",
-    availability: "Available",
-  },
-  {
-    id: 2,
-    name: "Dr. James Carter",
-    specialty: "Neurology",
-    email: "james.c@healthaxis.com",
-    availability: "On Leave",
-  },
-  {
-    id: 3,
-    name: "Dr. Emily Chen",
-    specialty: "Pediatrics",
-    email: "emily.c@healthaxis.com",
-    availability: "Available",
-  },
-  {
-    id: 4,
-    name: "Dr. Michael Brown",
-    specialty: "Orthopedics",
-    email: "michael.b@healthaxis.com",
-    availability: "Available",
-  },
-  {
-    id: 5,
-    name: "Dr. Lisa Ray",
-    specialty: "Dermatology",
-    email: "lisa.r@healthaxis.com",
-    availability: "Available",
-  },
-];
-
 export default function BookAppointment({ onBack }) {
+  const [doctors, setDoctors] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
 
-  const filteredDoctors = doctorsData.filter(
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch("http://localhost:8080/api/doctors", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch doctors");
+        }
+
+        const data = await res.json();
+        const mappedDoctors = data.map((doc, index) => ({
+          id: index, // Fallback ID since backend DTO might not have it
+          name: doc.fullName,
+          specialty: doc.specialization,
+          email: "", // Email not provided in DTO
+          availability: doc.status || "Available", // Fallback status
+        }));
+        setDoctors(mappedDoctors);
+      } catch (err) {
+        console.error(err);
+        setError("Could not load doctors list.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDoctors();
+  }, []);
+
+  const filteredDoctors = doctors.filter(
     (doctor) =>
       doctor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       doctor.specialty.toLowerCase().includes(searchQuery.toLowerCase())
@@ -239,56 +239,61 @@ export default function BookAppointment({ onBack }) {
         </div>
       </div>
 
-      <Table
-        headers={["Doctor", "Specialty", "Status"]}
-        data={filteredDoctors}
-        actions={false}
-        renderRow={(doctor) => (
-          <>
-            <td className="px-6 py-4 whitespace-nowrap">
-              <div className="flex items-center">
-                <div className="h-10 w-10 rounded-full bg-primary-50 dark:bg-primary-900/20 flex items-center justify-center text-primary-600 dark:text-primary-400 font-bold text-sm">
-                  {doctor.name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")}
-                </div>
-                <div className="ml-4">
-                  <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                    {doctor.name}
+      {loading && <div className="text-center py-10">Loading doctors...</div>}
+      {error && <div className="text-center py-10 text-red-500">{error}</div>}
+
+      {!loading && !error && (
+        <Table
+          headers={["Doctor", "Specialty", "Status"]}
+          data={filteredDoctors}
+          actions={false}
+          renderRow={(doctor) => (
+            <>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className="flex items-center">
+                  <div className="h-10 w-10 rounded-full bg-primary-50 dark:bg-primary-900/20 flex items-center justify-center text-primary-600 dark:text-primary-400 font-bold text-sm">
+                    {doctor.name
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")}
                   </div>
-                  <div className="text-xs text-gray-500">{doctor.email}</div>
+                  <div className="ml-4">
+                    <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                      {doctor.name}
+                    </div>
+                    <div className="text-xs text-gray-500">{doctor.email}</div>
+                  </div>
                 </div>
-              </div>
-            </td>
-            <td className="px-6 py-4 whitespace-nowrap">
-              <span className="px-3 py-1 rounded-full bg-gray-100 dark:bg-dark-700 text-xs font-medium text-gray-600 dark:text-gray-300">
-                {doctor.specialty}
-              </span>
-            </td>
-            <td className="px-6 py-4 whitespace-nowrap">
-              <span
-                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                  doctor.availability === "Available"
-                    ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400"
-                    : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400"
-                }`}
-              >
-                {doctor.availability}
-              </span>
-            </td>
-            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-              <Button
-                size="sm"
-                disabled={doctor.availability !== "Available"}
-                onClick={() => setSelectedDoctor(doctor)}
-              >
-                Book Now
-              </Button>
-            </td>
-          </>
-        )}
-      />
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <span className="px-3 py-1 rounded-full bg-gray-100 dark:bg-dark-700 text-xs font-medium text-gray-600 dark:text-gray-300">
+                  {doctor.specialty}
+                </span>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <span
+                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    doctor.availability === "Available"
+                      ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400"
+                      : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400"
+                  }`}
+                >
+                  {doctor.availability}
+                </span>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <Button
+                  size="sm"
+                  disabled={doctor.availability !== "Available"}
+                  onClick={() => setSelectedDoctor(doctor)}
+                >
+                  Book Now
+                </Button>
+              </td>
+            </>
+          )}
+        />
+      )}
     </div>
   );
 }
