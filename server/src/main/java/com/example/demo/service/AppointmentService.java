@@ -20,6 +20,7 @@ public class AppointmentService {
         private final DoctorRepository doctorRepo;
         private final PatientRepository patientRepo;
         private final UserRepository userRepo;
+        private final ActivityService activityService;
 
         private void checkAndUpdateStatus(Appointment appointment) {
                 if (appointment.getStatus() == Appointment.AppointmentStatus.UPCOMING &&
@@ -68,6 +69,11 @@ public class AppointmentService {
                 // 5. Update Patient's appointment list (Bidirectional)
                 patient.getAppointments().add(appointment);
                 patientRepo.save(patient);
+
+                // 6. Log Activity
+                activityService.logActivity(
+                                "Appointment scheduled: " + patient.getFullName() + " with " + doctor.getFullName(),
+                                com.example.demo.entity.Activity.ActivityType.NEW_APPOINTMENT);
         }
 
         public java.util.List<com.example.demo.dto.AppointmentResponse> getPatientAppointments(String patientEmail) {

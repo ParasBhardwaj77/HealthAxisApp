@@ -12,23 +12,31 @@ export default function AdminDashboard() {
     totalAppointments: 0,
     pendingAppointments: 0,
   });
+  const [recentActivities, setRecentActivities] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchAllStats = async () => {
       try {
-        // Fetching all three to get counts.
-        const [patientsRes, doctorsRes, appointmentsRes] = await Promise.all([
-          fetchWithAuth(API_ENDPOINTS.ADMIN.PATIENTS),
-          fetchWithAuth(API_ENDPOINTS.ADMIN.DOCTORS),
-          fetchWithAuth(API_ENDPOINTS.ADMIN.APPOINTMENTS),
-        ]);
+        // Fetching all stats including activities
+        const [patientsRes, doctorsRes, appointmentsRes, activitiesRes] =
+          await Promise.all([
+            fetchWithAuth(API_ENDPOINTS.ADMIN.PATIENTS),
+            fetchWithAuth(API_ENDPOINTS.ADMIN.DOCTORS),
+            fetchWithAuth(API_ENDPOINTS.ADMIN.APPOINTMENTS),
+            fetchWithAuth(API_ENDPOINTS.ADMIN.ACTIVITIES),
+          ]);
 
-        const [patients, doctors, appointments] = await Promise.all([
-          patientsRes.ok ? patientsRes.json() : [],
-          doctorsRes.ok ? doctorsRes.json() : [],
-          appointmentsRes.ok ? appointmentsRes.json() : [],
-        ]);
+        const [patients, doctors, appointments, activities] = await Promise.all(
+          [
+            patientsRes.ok ? patientsRes.json() : [],
+            doctorsRes.ok ? doctorsRes.json() : [],
+            appointmentsRes.ok ? appointmentsRes.json() : [],
+            activitiesRes.ok ? activitiesRes.json() : [],
+          ]
+        );
+
+        setRecentActivities(activities);
 
         setStats({
           totalPatients: patients.length,
@@ -163,21 +171,27 @@ export default function AdminDashboard() {
             Recent Activity
           </h3>
           <div className="space-y-6">
-            {[1, 2, 3, 4, 5].map((item) => (
-              <div key={item} className="flex items-start gap-3">
-                <div className="p-2 bg-gray-100 dark:bg-dark-700 rounded-full">
-                  <Activity className="w-4 h-4 text-gray-500" />
+            {recentActivities.length > 0 ? (
+              recentActivities.slice(0, 5).map((item) => (
+                <div key={item.id} className="flex items-start gap-3">
+                  <div className="p-2 bg-gray-100 dark:bg-dark-700 rounded-full">
+                    <Activity className="w-4 h-4 text-gray-500" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                      {item.description}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {new Date(item.timestamp).toLocaleString()}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">
-                    Dr. Sarah updated patient record
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    2 mins ago
-                  </p>
-                </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className="text-gray-500 dark:text-gray-400 text-sm">
+                No recent activity found.
+              </p>
+            )}
           </div>
           <Link to="/admin/recent-activity">
             <Button variant="ghost" className="w-full mt-4 text-sm">

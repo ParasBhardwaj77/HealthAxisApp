@@ -21,6 +21,7 @@ public class AuthService {
         private final PasswordEncoder encoder;
         private final JwtUtil jwtUtil;
         private final AuthenticationManager authManager;
+        private final ActivityService activityService;
 
         public void registerAdmin(AuthRequest req) {
                 if (!req.getEmail().endsWith("@admin.com"))
@@ -76,6 +77,9 @@ public class AuthService {
                                                 false, // 👈 default onLeave = false
                                                 new java.util.HashSet<Patient>() // 👈 new patients
                                 ));
+
+                activityService.logActivity("New doctor registered: " + req.getFullName(),
+                                Activity.ActivityType.NEW_DOCTOR);
         }
 
         public void createPatient(PatientRequest req) {
@@ -98,6 +102,9 @@ public class AuthService {
                                 new java.util.ArrayList<>());
 
                 patientRepo.save(patient);
+
+                activityService.logActivity("New patient registered: " + req.getFullName(),
+                                Activity.ActivityType.NEW_PATIENT);
         }
 
 }

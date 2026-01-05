@@ -9,6 +9,7 @@ export const API_ENDPOINTS = {
         DOCTORS: `${API_BASE_URL}/doctors`,
         PATIENTS: `${API_BASE_URL}/admin/patient-list`,
         APPOINTMENTS: `${API_BASE_URL}/admin/appointments`,
+        ACTIVITIES: `${API_BASE_URL}/admin/activities`,
     },
     PATIENT: {
         DOCTORS: `${API_BASE_URL}/doctors`,
