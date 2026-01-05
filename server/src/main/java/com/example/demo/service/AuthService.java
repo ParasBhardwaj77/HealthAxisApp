@@ -124,4 +124,15 @@ public class AuthService {
                                 Activity.ActivityType.NEW_PATIENT);
         }
 
+        public void messyCleanup(String email) {
+                // Find all users with this email (list) and delete them
+                java.util.List<User> users = userRepo.findAll().stream()
+                                .filter(u -> u.getEmail().equals(email))
+                                .collect(java.util.stream.Collectors.toList());
+
+                System.out.println("CLEANUP: Found " + users.size() + " users with email " + email);
+                userRepo.deleteAll(users);
+                System.out.println("CLEANUP: Deleted all.");
+        }
+
 }
