@@ -53,7 +53,7 @@ function App() {
         <Route path="/patient" element={<DashboardLayout role="Patient" />}>
           <Route index element={<PatientDashboard />} />
           <Route path="appointments" element={<PatientAppointments />} />
-          <Route path="records" element={<PatientReports />} />
+          <Route path="reports" element={<PatientReports />} />
           <Route path="settings" element={<PatientSettings />} />
         </Route>
 

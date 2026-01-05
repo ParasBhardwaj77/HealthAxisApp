@@ -13,4 +13,5 @@ public class DoctorStatsResponse {
     private String email;
     private boolean onLeave;
     private int patientCount;
+    private int totalReports;
 }

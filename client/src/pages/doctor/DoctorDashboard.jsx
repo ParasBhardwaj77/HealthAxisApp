@@ -9,6 +9,7 @@ import {
   Loader2,
   Clock,
   ChevronDown,
+  Eye,
 } from "lucide-react";
 import StatCard from "../../components/StatCard";
 import { Button } from "../../components/ui/Button";
@@ -64,6 +65,7 @@ export default function DoctorDashboard() {
   const [doctorInfo, setDoctorInfo] = useState({
     name: "Doctor",
     totalPatients: 0,
+    totalReports: 0,
   });
   const [patients, setPatients] = useState([]);
   const [loadingPatients, setLoadingPatients] = useState(false);
@@ -147,6 +149,7 @@ export default function DoctorDashboard() {
           setDoctorInfo({
             name: meData.fullName,
             totalPatients: meData.patientCount,
+            totalReports: meData.totalReports,
           });
         }
         await fetchAppointments(view);
@@ -167,19 +170,77 @@ export default function DoctorDashboard() {
     { id: 2, name: "Robert Jones", date: "Oct 24, 2024", duration: "08:30" },
   ]);
 
-  const handleUploadClick = (consultId) => {
+  const handleUploadClick = (patientId) => {
     const input = document.createElement("input");
     input.type = "file";
-    input.onchange = (e) => {
+    input.accept = ".pdf,.doc,.docx,.jpg,.jpeg,.png"; // Accept common formats
+    input.onchange = async (e) => {
       const file = e.target.files[0];
       if (file) {
-        console.log(`Uploaded ${file.name} for consultation ${consultId}`);
-        setCompletedConsultations((prev) =>
-          prev.filter((c) => c.id !== consultId)
-        );
+        try {
+          const formData = new FormData();
+          formData.append("file", file);
+          formData.append("patientId", patientId);
+
+          const token = localStorage.getItem("token");
+          const res = await fetch(API_ENDPOINTS.REPORTS.UPLOAD, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            body: formData,
+          });
+
+          if (res.ok) {
+            alert(`Report "${file.name}" uploaded successfully!`);
+          } else {
+            console.error("Upload failed", await res.text());
+            alert("Failed to upload report.");
+          }
+        } catch (error) {
+          console.error("Upload error:", error);
+          alert("Error uploading report.");
+        }
       }
     };
     input.click();
+  };
+
+  const [viewReportsModalOpen, setViewReportsModalOpen] = useState(false);
+  const [selectedPatientReports, setSelectedPatientReports] = useState([]);
+  const [selectedPatientName, setSelectedPatientName] = useState("");
+  const [loadingReports, setLoadingReports] = useState(false);
+
+  const handleViewReports = async (patient) => {
+    setSelectedPatientName(patient.fullName);
+    setViewReportsModalOpen(true);
+    setLoadingReports(true);
+    try {
+      const res = await fetchWithAuth(
+        API_ENDPOINTS.REPORTS.GET_PATIENT_REPORTS(patient.id)
+      );
+      if (res.ok) {
+        const data = await res.json();
+        setSelectedPatientReports(data);
+      } else {
+        console.error("Failed to fetch reports");
+        setSelectedPatientReports([]);
+      }
+    } catch (error) {
+      console.error("Error fetching reports:", error);
+      setSelectedPatientReports([]);
+    } finally {
+      setLoadingReports(false);
+    }
+  };
+
+  const handleDoctorDownload = (report) => {
+    const link = document.createElement("a");
+    link.href = API_ENDPOINTS.REPORTS.DOWNLOAD(report.id);
+    link.setAttribute("download", report.fileName);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -215,13 +276,16 @@ export default function DoctorDashboard() {
           }}
         />
         <StatCard
-          title="Pending Reports"
-          value={completedConsultations.length}
+          title="Total Reports"
+          value={(doctorInfo?.totalReports || 0).toString()}
           icon={FileText}
           trend="down"
           trendValue="Urgent"
           color="primary"
-          onClick={() => setIsPendingModalOpen(true)}
+          onClick={() => {
+            setIsPendingModalOpen(true);
+            fetchPatients();
+          }}
         />
       </div>
 
@@ -427,7 +491,7 @@ export default function DoctorDashboard() {
           <div className="bg-white dark:bg-dark-800 w-full max-w-lg rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-700">
               <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                Pending Reports
+                Upload Reports
               </h2>
               <button
                 onClick={() => setIsPendingModalOpen(false)}
@@ -439,36 +503,56 @@ export default function DoctorDashboard() {
             </div>
 
             <div className="p-4 max-h-[60vh] overflow-y-auto">
-              <div className="space-y-3">
-                {completedConsultations.map((consult) => (
-                  <div
-                    key={consult.id}
-                    className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 dark:bg-dark-700/50 hover:bg-gray-100 dark:hover:bg-dark-700 transition-all border border-transparent"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-full bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center text-teal-600 dark:text-teal-400">
-                        <User className="w-5 h-5" />
+              {loadingPatients ? (
+                <div className="flex justify-center items-center py-8">
+                  <Loader2 className="w-8 h-8 text-primary-500 animate-spin" />
+                </div>
+              ) : patients.length === 0 ? (
+                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                  No patients found
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {patients.map((patient) => (
+                    <div
+                      key={patient.id}
+                      className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 dark:bg-dark-700/50 hover:bg-gray-100 dark:hover:bg-dark-700 transition-all border border-transparent"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-full bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center text-teal-600 dark:text-teal-400">
+                          <User className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-gray-900 dark:text-white text-sm">
+                            {patient.fullName}
+                          </h4>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {patient.age} years • {patient.gender}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <h4 className="font-bold text-gray-900 dark:text-white text-sm">
-                          {consult.name}
-                        </h4>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          Ended at {consult.date} • {consult.duration} min
-                        </p>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="px-4 rounded-full border-primary-500 text-primary-500 hover:bg-primary-50"
+                          onClick={() => handleUploadClick(patient.id)}
+                        >
+                          Upload
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="px-2 rounded-full text-gray-400 hover:text-teal-600 hover:bg-teal-50"
+                          onClick={() => handleViewReports(patient)}
+                        >
+                          <Eye className="w-5 h-5" />
+                        </Button>
                       </div>
                     </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="px-6 rounded-full border-primary-500 text-primary-500 hover:bg-primary-50"
-                      onClick={() => handleUploadClick(consult.id)}
-                    >
-                      Upload Report
-                    </Button>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="p-6 bg-gray-50 dark:bg-dark-700/30 border-t border-gray-100 dark:border-gray-700 flex justify-end">
@@ -540,6 +624,78 @@ export default function DoctorDashboard() {
               <Button
                 variant="outline"
                 onClick={() => setIsPatientsModalOpen(false)}
+                className="rounded-xl"
+              >
+                Close
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Patient Reports Modal */}
+      {viewReportsModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-dark-800 w-full max-w-lg rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-700">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                Reports for {selectedPatientName}
+              </h2>
+              <button
+                onClick={() => setViewReportsModalOpen(false)}
+                className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-dark-700 text-gray-500 transition-colors"
+                aria-label="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-4 max-h-[60vh] overflow-y-auto">
+              {loadingReports ? (
+                <div className="flex justify-center items-center py-8">
+                  <Loader2 className="w-8 h-8 text-primary-500 animate-spin" />
+                </div>
+              ) : selectedPatientReports.length === 0 ? (
+                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                  No reports found for this patient.
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {selectedPatientReports.map((report) => (
+                    <div
+                      key={report.id}
+                      className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 dark:bg-dark-700/50 hover:bg-gray-100 dark:hover:bg-dark-700 transition-all border border-transparent"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                          <FileText className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-gray-900 dark:text-white text-sm">
+                            {report.fileName}
+                          </h4>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {new Date(report.createdAt).toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-gray-400 hover:text-primary-500"
+                        onClick={() => handleDoctorDownload(report)}
+                      >
+                        <Users className="w-4 h-4 mr-2" /> Download
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="p-6 bg-gray-50 dark:bg-dark-700/30 border-t border-gray-100 dark:border-gray-700 flex justify-end">
+              <Button
+                variant="outline"
+                onClick={() => setViewReportsModalOpen(false)}
                 className="rounded-xl"
               >
                 Close

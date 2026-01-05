@@ -26,25 +26,31 @@ export default function PatientDashboard() {
   const [error, setError] = useState("");
   const [userProfile, setUserProfile] = useState({ name: "Patient" });
 
+  const [reports, setReports] = useState([]);
+  const [loadingReports, setLoadingReports] = useState(false);
+
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
-        // Fetch appointments
-        const res = await fetchWithAuth(API_ENDPOINTS.PATIENT.MY_APPOINTMENTS);
-        if (!res.ok) throw new Error("Failed to fetch appointments");
+        const [appointmentsRes, reportsRes] = await Promise.all([
+          fetchWithAuth(API_ENDPOINTS.PATIENT.MY_APPOINTMENTS),
+          fetchWithAuth(API_ENDPOINTS.REPORTS.MY),
+        ]);
 
-        const data = await res.json();
+        if (appointmentsRes.ok) {
+          const data = await appointmentsRes.json();
+          const upcoming = data
+            .filter((app) => app.status.toUpperCase() === "UPCOMING")
+            .sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
+          setAppointments(upcoming);
+        }
 
-        // Filter and sort appointments
-        // Latest (soonest) on top for upcoming
-        const upcoming = data
-          .filter((app) => app.status.toUpperCase() === "UPCOMING")
-          .sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
+        if (reportsRes.ok) {
+          const reportsData = await reportsRes.json();
+          setReports(reportsData);
+        }
 
-        setAppointments(upcoming);
-
-        // Try to get user name from local storage or profile if available
         const user = JSON.parse(localStorage.getItem("user") || "{}");
         if (user.name) setUserProfile({ name: user.name });
       } catch (err) {
@@ -144,7 +150,7 @@ export default function PatientDashboard() {
         />
         <StatCard
           title="Total Reports"
-          value="5"
+          value={reports.length.toString()}
           icon={FileText}
           color="orange"
         />
@@ -261,29 +267,47 @@ export default function PatientDashboard() {
             </Button>
           </div>
           <div className="space-y-4">
-            {records.map((record, i) => (
-              <div
-                key={i}
-                className="flex items-center gap-4 p-3 rounded-2xl hover:bg-gray-50 dark:hover:bg-dark-700 transition-colors cursor-pointer group"
-              >
-                <div className="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400 flex items-center justify-center">
-                  <FileText className="w-5 h-5" />
-                </div>
-                <div className="flex-1">
-                  <h4 className="text-sm font-bold text-gray-900 dark:text-white group-hover:text-primary-600 transition-colors">
-                    {record.type}
-                  </h4>
-                  <p className="text-xs text-gray-500">{record.date}</p>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-gray-400 group-hover:text-primary-500"
+            {reports.length === 0 ? (
+              <p className="text-gray-500 dark:text-gray-400 text-center py-4">
+                No reports found.
+              </p>
+            ) : (
+              reports.map((report) => (
+                <div
+                  key={report.id}
+                  className="flex items-center gap-4 p-3 rounded-2xl hover:bg-gray-50 dark:hover:bg-dark-700 transition-colors cursor-pointer group"
+                  onClick={() => {
+                    // Trigger download
+                    const link = document.createElement("a");
+                    link.href = API_ENDPOINTS.REPORTS.DOWNLOAD(report.id);
+                    link.setAttribute("download", report.fileName);
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                  }}
                 >
-                  <Clock className="w-4 h-4" />
-                </Button>
-              </div>
-            ))}
+                  <div className="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400 flex items-center justify-center">
+                    <FileText className="w-5 h-5" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="text-sm font-bold text-gray-900 dark:text-white group-hover:text-primary-600 transition-colors">
+                      {report.fileName}
+                    </h4>
+                    <p className="text-xs text-gray-500">
+                      Uploaded by {report.doctorName} •{" "}
+                      {new Date(report.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-gray-400 group-hover:text-primary-500"
+                  >
+                    <Clock className="w-4 h-4" />
+                  </Button>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>

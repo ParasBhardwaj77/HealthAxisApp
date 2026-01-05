@@ -25,6 +25,8 @@ public class DocController {
         return ResponseEntity.ok("Leave status updated");
     }
 
+    private final com.example.demo.service.ReportService reportService; // Inject ReportService
+
     @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN')")
     @GetMapping("/doctor/me")
     public com.example.demo.dto.DoctorStatsResponse getDoctor(Authentication authentication) {
@@ -34,7 +36,8 @@ public class DocController {
                 doc.getFullName(),
                 doc.getUser() != null ? doc.getUser().getEmail() : "No Email",
                 doc.getOnLeave(),
-                docService.getUniquePatientCount(doc));
+                docService.getUniquePatientCount(doc),
+                reportService.getDoctorReportCount(doc));
     }
 
     @PreAuthorize("hasAnyRole('PATIENT', 'ADMIN')")

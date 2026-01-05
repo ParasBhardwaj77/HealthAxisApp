@@ -20,6 +20,12 @@ export const API_ENDPOINTS = {
         TODAY_APPOINTMENTS: `${API_BASE_URL}/doctor/appointments/today`,
         ALL_APPOINTMENTS: `${API_BASE_URL}/doctor/appointments/all`,
     },
+    REPORTS: {
+        UPLOAD: `${API_BASE_URL}/reports/upload`,
+        MY: `${API_BASE_URL}/reports/my`,
+        GET_PATIENT_REPORTS: (patientId) => `${API_BASE_URL}/reports/patient/${patientId}`,
+        DOWNLOAD: (id) => `${API_BASE_URL}/reports/${id}/download`,
+    },
 };
 
 export const fetchWithAuth = async (url, options = {}) => {

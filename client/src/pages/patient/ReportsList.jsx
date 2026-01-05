@@ -1,65 +1,60 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, FileText, Download, Eye, Search } from "lucide-react";
-import { useState } from "react";
+import {
+  ArrowLeft,
+  FileText,
+  Download,
+  Eye,
+  Search,
+  Loader2,
+} from "lucide-react";
+import { useState, useEffect } from "react";
 import { Button } from "../../components/ui/Button";
 import Table from "../../components/Table";
-
-const reportsData = [
-  {
-    id: 1,
-    date: "Oct 15, 2024",
-    doctor: "Dr. Sarah Wilson",
-    type: "Blood Test Results",
-    status: "Available",
-    size: "1.2 MB",
-  },
-  {
-    id: 2,
-    date: "Sep 22, 2024",
-    doctor: "Dr. Michael Brown",
-    type: "X-Ray Report",
-    status: "Available",
-    size: "4.5 MB",
-  },
-  {
-    id: 3,
-    date: "Aug 10, 2024",
-    doctor: "Dr. Emily Chen",
-    type: "General Checkup",
-    status: "Available",
-    size: "0.8 MB",
-  },
-  {
-    id: 4,
-    date: "Jul 05, 2024",
-    doctor: "Dr. Sarah Wilson",
-    type: "Urinalysis",
-    status: "Available",
-    size: "1.1 MB",
-  },
-  {
-    id: 5,
-    date: "Jun 18, 2024",
-    doctor: "Dr. James Carter",
-    type: "MRI Scan",
-    status: "Available",
-    size: "12.4 MB",
-  },
-];
+import { API_ENDPOINTS, fetchWithAuth } from "../../api/config";
 
 export default function ReportsList({ onBack }) {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
+  const [reports, setReports] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchReports = async () => {
+      try {
+        setLoading(true);
+        const res = await fetchWithAuth(API_ENDPOINTS.REPORTS.MY);
+        if (res.ok) {
+          const data = await res.json();
+          setReports(data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch reports:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReports();
+  }, []);
 
   const handleBack = () => {
     if (onBack) onBack();
     else navigate(-1);
   };
 
-  const filteredReports = reportsData.filter(
+  const handleDownload = (report) => {
+    const link = document.createElement("a");
+    link.href = API_ENDPOINTS.REPORTS.DOWNLOAD(report.id);
+    link.setAttribute("download", report.fileName);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const filteredReports = reports.filter(
     (report) =>
-      report.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      report.doctor.toLowerCase().includes(searchQuery.toLowerCase())
+      report.fileName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      report.doctorName.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -88,7 +83,7 @@ export default function ReportsList({ onBack }) {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           <input
             type="text"
-            placeholder="Search by report type or doctor..."
+            placeholder="Search by report name or doctor..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-3 rounded-2xl border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-dark-900 focus:ring-2 focus:ring-primary-500 outline-none transition-all"
@@ -96,52 +91,52 @@ export default function ReportsList({ onBack }) {
         </div>
       </div>
 
-      <Table
-        headers={["Report Type", "Doctor", "Date", "Size"]}
-        data={filteredReports}
-        actions={false}
-        renderRow={(report) => (
-          <>
-            <td className="px-6 py-4 whitespace-nowrap">
-              <div className="flex items-center">
-                <div className="p-2 rounded-xl bg-teal-50 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400 mr-3">
-                  <FileText className="w-5 h-5" />
+      {loading ? (
+        <div className="flex justify-center items-center py-12">
+          <Loader2 className="w-8 h-8 text-primary-500 animate-spin" />
+        </div>
+      ) : (
+        <Table
+          headers={["Report Name", "Doctor", "Date", "Type"]}
+          data={filteredReports}
+          actions={false}
+          renderRow={(report) => (
+            <>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className="flex items-center">
+                  <div className="p-2 rounded-xl bg-teal-50 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400 mr-3">
+                    <FileText className="w-5 h-5" />
+                  </div>
+                  <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                    {report.fileName}
+                  </div>
                 </div>
-                <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                  {report.type}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                {report.doctorName}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                {new Date(report.createdAt).toLocaleDateString()}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                {report.fileType}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <div className="flex justify-end gap-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-gray-400 hover:text-primary-500"
+                    onClick={() => handleDownload(report)}
+                  >
+                    <Download className="w-4 h-4" />
+                  </Button>
                 </div>
-              </div>
-            </td>
-            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-              {report.doctor}
-            </td>
-            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-              {report.date}
-            </td>
-            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-              {report.size}
-            </td>
-            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-              <div className="flex justify-end gap-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-gray-400 hover:text-primary-500"
-                >
-                  <Eye className="w-4 h-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-gray-400 hover:text-primary-500"
-                >
-                  <Download className="w-4 h-4" />
-                </Button>
-              </div>
-            </td>
-          </>
-        )}
-      />
+              </td>
+            </>
+          )}
+        />
+      )}
     </div>
   );
 }

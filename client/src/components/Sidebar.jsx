@@ -30,7 +30,7 @@ const menus = {
   Patient: [
     { name: "My Health", path: "/patient", icon: Activity },
     { name: "Appointments", path: "/patient/appointments", icon: Calendar },
-    { name: "Records", path: "/patient/records", icon: FileText },
+    { name: "Reports", path: "/patient/reports", icon: FileText },
     { name: "Settings", path: "/patient/settings", icon: Settings },
   ],
 };
