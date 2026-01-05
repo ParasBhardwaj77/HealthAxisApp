@@ -1,5 +1,12 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Calendar, Search, MapPin, Clock } from "lucide-react";
+import {
+  ArrowLeft,
+  Calendar,
+  Search,
+  MapPin,
+  Clock,
+  Video,
+} from "lucide-react";
 import { API_ENDPOINTS, fetchWithAuth } from "../../api/config";
 import { useState, useEffect } from "react";
 import { Button } from "../../components/ui/Button";
@@ -99,6 +106,7 @@ export default function AppointmentsList({ onBack }) {
 
   const statusOrder = {
     Upcoming: 1,
+    Confirmed: 1.5,
     Canceled: 2,
     Completed: 3,
   };
@@ -188,6 +196,8 @@ export default function AppointmentsList({ onBack }) {
                   className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                     app.status === "Upcoming"
                       ? "bg-primary-100 text-primary-800 dark:bg-primary-900/20 dark:text-primary-400"
+                      : app.status === "Confirmed" || app.status === "Completed"
+                      ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400"
                       : app.status === "Canceled"
                       ? "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400"
                       : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
@@ -198,14 +208,20 @@ export default function AppointmentsList({ onBack }) {
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                 {app.status === "Upcoming" && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleCancelClick(app.id)}
-                    className="text-red-600 hover:text-red-900 dark:hover:text-red-400"
-                  >
-                    Cancel
-                  </Button>
+                  <div className="flex items-center justify-end gap-2">
+                    <Button variant="primary" size="sm" className="rounded-xl">
+                      <Video className="w-4 h-4 mr-2" />
+                      Join Appointment
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleCancelClick(app.id)}
+                      className="text-red-600 hover:text-red-900 dark:hover:text-red-400"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
                 )}
               </td>
             </>

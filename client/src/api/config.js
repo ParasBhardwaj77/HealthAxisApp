@@ -15,6 +15,10 @@ export const API_ENDPOINTS = {
         APPOINTMENTS: `${API_BASE_URL}/appointments`,
         MY_APPOINTMENTS: `${API_BASE_URL}/appointments/my`,
     },
+    DOCTOR: {
+        TODAY_APPOINTMENTS: `${API_BASE_URL}/doctor/appointments/today`,
+        ALL_APPOINTMENTS: `${API_BASE_URL}/doctor/appointments/all`,
+    },
 };
 
 export const fetchWithAuth = async (url, options = {}) => {

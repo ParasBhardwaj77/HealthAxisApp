@@ -32,10 +32,10 @@ public class AdminService {
                 .collect(Collectors.toList());
     }
 
+    private final AppointmentService appointmentService;
+
     public List<AppointmentResponse> getAllAppointments() {
-        return appointmentRepo.findAll().stream()
-                .map(AppointmentResponse::new)
-                .collect(Collectors.toList());
+        return appointmentService.getAllAppointments();
     }
 
     public void deleteDoctor(String id) {

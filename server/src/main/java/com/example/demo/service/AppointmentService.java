@@ -21,6 +21,14 @@ public class AppointmentService {
         private final PatientRepository patientRepo;
         private final UserRepository userRepo;
 
+        private void checkAndUpdateStatus(Appointment appointment) {
+                if (appointment.getStatus() == Appointment.AppointmentStatus.UPCOMING &&
+                                appointment.getDateTime().isBefore(java.time.LocalDateTime.now())) {
+                        appointment.setStatus(Appointment.AppointmentStatus.CONFIRMED);
+                        appointmentRepo.save(appointment);
+                }
+        }
+
         public void bookAppointment(String patientEmail, AppointmentRequest req) {
                 // 1. Get Patient
                 User user = userRepo.findByEmail(patientEmail)
@@ -33,8 +41,13 @@ public class AppointmentService {
                                 .orElseThrow(() -> new RuntimeException("Doctor not found"));
 
                 // 3. Check Conflict
-                if (appointmentRepo.existsByDoctorAndDateTime(doctor, req.getDateTime())) {
+                if (appointmentRepo.existsByDoctorAndDateTimeAndStatusNot(doctor, req.getDateTime(),
+                                Appointment.AppointmentStatus.CANCELED)) {
                         throw new RuntimeException("Doctor is already booked at this time");
+                }
+                if (appointmentRepo.existsByPatientAndDateTimeAndStatusNot(patient, req.getDateTime(),
+                                Appointment.AppointmentStatus.CANCELED)) {
+                        throw new RuntimeException("You already have an appointment at this time");
                 }
 
                 // 4. Create Appointment
@@ -64,6 +77,7 @@ public class AppointmentService {
                                 .orElseThrow(() -> new RuntimeException("Patient profile not found"));
 
                 return appointmentRepo.findByPatient(patient).stream()
+                                .peek(this::checkAndUpdateStatus)
                                 .map(com.example.demo.dto.AppointmentResponse::new)
                                 .collect(java.util.stream.Collectors.toList());
         }
@@ -85,5 +99,57 @@ public class AppointmentService {
                 // but if we were holding a separate copy we'd need to update it.
                 // Since we use DBRef, fetching the patient again will show the updated status
                 // in the referenced object.
+        }
+
+        public java.util.List<com.example.demo.dto.AppointmentResponse> getDoctorAppointmentsToday(String doctorEmail) {
+                User user = userRepo.findByEmail(doctorEmail)
+                                .orElseThrow(() -> new RuntimeException("User not found"));
+                Doctor doctor = doctorRepo.findByUser(user)
+                                .orElseThrow(() -> new RuntimeException("Doctor profile not found"));
+
+                java.time.LocalDateTime start = java.time.LocalDate.now().atStartOfDay();
+                java.time.LocalDateTime end = java.time.LocalDate.now().atTime(23, 59, 59);
+
+                return appointmentRepo.findByDoctorAndDateTimeBetween(doctor, start, end).stream()
+                                .peek(this::checkAndUpdateStatus)
+                                .map(com.example.demo.dto.AppointmentResponse::new)
+                                .collect(java.util.stream.Collectors.toList());
+        }
+
+        public java.util.List<com.example.demo.dto.AppointmentResponse> getDoctorAppointments(String doctorEmail) {
+                User user = userRepo.findByEmail(doctorEmail)
+                                .orElseThrow(() -> new RuntimeException("User not found"));
+                Doctor doctor = doctorRepo.findByUser(user)
+                                .orElseThrow(() -> new RuntimeException("Doctor profile not found"));
+
+                return appointmentRepo.findByDoctor(doctor).stream()
+                                .peek(this::checkAndUpdateStatus)
+                                .map(com.example.demo.dto.AppointmentResponse::new)
+                                .collect(java.util.stream.Collectors.toList());
+        }
+
+        public java.util.List<com.example.demo.dto.AppointmentResponse> getAllAppointments() {
+                return appointmentRepo.findAll().stream()
+                                .peek(this::checkAndUpdateStatus)
+                                .map(com.example.demo.dto.AppointmentResponse::new)
+                                .collect(java.util.stream.Collectors.toList());
+        }
+
+        public com.example.demo.dto.AppointmentResponse getAppointmentById(String id) {
+                Appointment appointment = appointmentRepo.findById(id)
+                                .orElseThrow(() -> new RuntimeException("Appointment not found"));
+                checkAndUpdateStatus(appointment);
+                return new com.example.demo.dto.AppointmentResponse(appointment);
+        }
+
+        public void completeAppointment(String appointmentId) {
+                Appointment appointment = appointmentRepo.findById(appointmentId)
+                                .orElseThrow(() -> new RuntimeException("Appointment not found"));
+
+                // Update status to CONFIRMED when call ends
+                if (appointment.getStatus() == Appointment.AppointmentStatus.UPCOMING) {
+                        appointment.setStatus(Appointment.AppointmentStatus.CONFIRMED);
+                        appointmentRepo.save(appointment);
+                }
         }
 }

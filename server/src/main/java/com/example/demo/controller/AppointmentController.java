@@ -37,4 +37,17 @@ public class AppointmentController {
         appointmentService.cancelAppointment(id, auth.getName());
         return ResponseEntity.ok("Appointment canceled successfully");
     }
+
+    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN')")
+    @GetMapping("/{id}")
+    public com.example.demo.dto.AppointmentResponse getAppointment(@PathVariable String id) {
+        return appointmentService.getAppointmentById(id);
+    }
+
+    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN')")
+    @PatchMapping("/{id}/complete")
+    public ResponseEntity<?> completeAppointment(@PathVariable String id) {
+        appointmentService.completeAppointment(id);
+        return ResponseEntity.ok("Appointment completed successfully");
+    }
 }

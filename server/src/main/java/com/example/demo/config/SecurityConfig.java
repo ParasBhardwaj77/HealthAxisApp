@@ -20,15 +20,16 @@ public class SecurityConfig {
         @Bean
         SecurityFilterChain filterChain(
                         HttpSecurity http,
-                        JwtAuthenticationFilter filter) throws Exception {
+                        JwtAuthenticationFilter filter,
+                        org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource) throws Exception {
 
                 return http
-                                .cors(cors -> {
-                                })
+                                .cors(cors -> cors.configurationSource(corsConfigurationSource))
                                 .csrf(csrf -> csrf.disable())
                                 .authorizeHttpRequests(auth -> auth
                                                 .requestMatchers("/api/auth/**").permitAll()
-                                                .requestMatchers("/api/appointments/**").hasRole("PATIENT")
+                                                .requestMatchers("/api/doctor/**").permitAll()
+                                                .requestMatchers("/api/appointments/**").authenticated()
                                                 .anyRequest().authenticated())
                                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                                 .addFilterBefore(

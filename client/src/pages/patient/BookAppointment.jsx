@@ -63,11 +63,10 @@ export default function BookAppointment({ onBack }) {
     return `${displayHour}:00 ${period}`;
   });
 
-  // Get tomorrow's date for 'min' attribute in YYYY-MM-DD format
-  const getTomorrowStr = () => {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    return tomorrow.toISOString().split("T")[0];
+  // Get today's date for 'min' attribute in YYYY-MM-DD format
+  const getTodayStr = () => {
+    const today = new Date();
+    return today.toISOString().split("T")[0];
   };
 
   const handleConfirmBooking = async () => {
@@ -97,7 +96,7 @@ export default function BookAppointment({ onBack }) {
         onBack();
       } else {
         const errorMsg = await res.text();
-        alert(`Booking failed: ${errorMsg}`);
+        alert(`Please select another time slot! ${errorMsg}`);
       }
     } catch (err) {
       console.error(err);
@@ -150,7 +149,7 @@ export default function BookAppointment({ onBack }) {
             <div className="space-y-4">
               <input
                 type="date"
-                min={getTomorrowStr()}
+                min={getTodayStr()}
                 value={selectedDate}
                 onChange={(e) => {
                   setSelectedDate(e.target.value);
@@ -161,7 +160,7 @@ export default function BookAppointment({ onBack }) {
               <div className="flex items-center justify-center gap-2 py-2 px-4 bg-primary-50 dark:bg-primary-900/20 rounded-xl">
                 <div className="w-2 h-2 rounded-full bg-primary-500 animate-pulse"></div>
                 <p className="text-[10px] text-primary-600 dark:text-primary-400 font-bold uppercase tracking-widest">
-                  Available from tomorrow onwards
+                  Available from today onwards
                 </p>
               </div>
             </div>

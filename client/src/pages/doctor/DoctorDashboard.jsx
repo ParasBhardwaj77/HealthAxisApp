@@ -1,8 +1,19 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { Calendar, Users, X, User, FileText } from "lucide-react";
+import {
+  Calendar,
+  Users,
+  X,
+  User,
+  FileText,
+  Loader2,
+  Clock,
+  ChevronDown,
+} from "lucide-react";
 import StatCard from "../../components/StatCard";
 import { Button } from "../../components/ui/Button";
+import { API_ENDPOINTS, fetchWithAuth, API_BASE_URL } from "../../api/config";
+import { useEffect } from "react";
 
 const patientsData = [
   {
@@ -45,7 +56,107 @@ const patientsData = [
 export default function DoctorDashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPendingModalOpen, setIsPendingModalOpen] = useState(false);
+  const [isPatientsModalOpen, setIsPatientsModalOpen] = useState(false);
+  const [appointments, setAppointments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [view, setView] = useState("today"); // "today" or "all"
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [doctorInfo, setDoctorInfo] = useState({
+    name: "Doctor",
+    totalPatients: 0,
+  });
+  const [patients, setPatients] = useState([]);
+  const [loadingPatients, setLoadingPatients] = useState(false);
   const navigate = useNavigate();
+
+  const fetchAppointments = async (currentView) => {
+    try {
+      setLoading(true);
+      const endpoint =
+        currentView === "today"
+          ? API_ENDPOINTS.DOCTOR.TODAY_APPOINTMENTS
+          : API_ENDPOINTS.DOCTOR.ALL_APPOINTMENTS;
+
+      const res = await fetchWithAuth(endpoint);
+      if (res.ok) {
+        const data = await res.json();
+        let filteredData = data;
+
+        if (currentView === "today") {
+          filteredData = data
+            .filter(
+              (app) =>
+                app.status.toUpperCase() === "UPCOMING" ||
+                app.status.toUpperCase() === "CONFIRMED"
+            )
+            .sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
+        } else {
+          // Sort all appointments: future ones first (ascending), then past ones (descending)
+          const now = new Date();
+          filteredData = data.sort((a, b) => {
+            const dateA = new Date(a.dateTime);
+            const dateB = new Date(b.dateTime);
+
+            // If both are in the future, sort ascending (closest first)
+            if (dateA > now && dateB > now) return dateA - dateB;
+            // If both are in the past, sort descending (most recent first)
+            if (dateA <= now && dateB <= now) return dateB - dateA;
+            // Future appointments come before past ones
+            return dateA > now ? -1 : 1;
+          });
+        }
+        setAppointments(filteredData);
+      }
+    } catch (err) {
+      console.error("Fetch appointments error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchPatients = async () => {
+    try {
+      setLoadingPatients(true);
+      console.log("[DoctorDashboard] Fetching patients...");
+      const res = await fetchWithAuth(`${API_BASE_URL}/doctor/patients`);
+      console.log("[DoctorDashboard] Patients response status:", res.status);
+      if (res.ok) {
+        const data = await res.json();
+        console.log("[DoctorDashboard] Patients data:", data);
+        setPatients(data);
+      } else {
+        console.error(
+          "[DoctorDashboard] Failed to fetch patients, status:",
+          res.status
+        );
+      }
+    } catch (error) {
+      console.error("[DoctorDashboard] Failed to fetch patients:", error);
+    } finally {
+      setLoadingPatients(false);
+    }
+  };
+
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      try {
+        // Fetch doctor info for greeting
+        const meRes = await fetchWithAuth(`${API_BASE_URL}/doctor/me`);
+        if (meRes.ok) {
+          const meData = await meRes.json();
+          setDoctorInfo({
+            name: meData.fullName,
+            totalPatients: meData.patientCount,
+          });
+        }
+        await fetchAppointments(view);
+      } catch (err) {
+        console.error("Initial fetch error:", err);
+      }
+    };
+
+    fetchInitialData();
+  }, [view]);
 
   const handleConsult = (patient) => {
     navigate(`/doctor/video-call/${patient.id}`);
@@ -79,20 +190,15 @@ export default function DoctorDashboard() {
             Doctor's Portal
           </h1>
           <p className="text-gray-500 dark:text-gray-400 text-sm">
-            Have a nice day, Dr. Wilson
+            Have a nice day, {doctorInfo.name}
           </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <Button onClick={() => setIsModalOpen(true)}>
-            Start Consultation
-          </Button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <StatCard
           title="Upcoming Appointments"
-          value="12"
+          value={(appointments?.length || 0).toString()}
           icon={Calendar}
           trend="up"
           trendValue="Normal"
@@ -100,9 +206,13 @@ export default function DoctorDashboard() {
         />
         <StatCard
           title="Total Patients"
-          value="1.2k"
+          value={(doctorInfo?.totalPatients || 0).toString()}
           icon={Users}
           color="teal"
+          onClick={() => {
+            setIsPatientsModalOpen(true);
+            fetchPatients();
+          }}
         />
         <StatCard
           title="Pending Reports"
@@ -116,62 +226,136 @@ export default function DoctorDashboard() {
       </div>
 
       <div className="bg-white dark:bg-dark-800 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700">
-        <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-4">
-          Today's Schedule
-        </h3>
-        <div className="space-y-4">
-          {[
-            {
-              time: "09:00 AM",
-              patient: "Alice Smith",
-              type: "Check-up",
-              status: "Completed",
-            },
-            {
-              time: "10:30 AM",
-              patient: "Robert Jones",
-              type: "Check-up",
-              status: "In Progress",
-            },
-            {
-              time: "11:45 AM",
-              patient: " Maria Garcia",
-              type: "Check-up",
-              status: "Pending",
-            },
-            {
-              time: "02:00 PM",
-              patient: "David Brown",
-              type: "Check-up",
-              status: "Pending",
-            },
-          ].map((apt, i) => (
-            <div
-              key={i}
-              className="flex items-center p-4 rounded-2xl bg-gray-50 dark:bg-dark-700/50 hover:bg-gray-100 dark:hover:bg-dark-700 transition-colors cursor-pointer group"
+        <div className="flex items-center justify-between mb-6">
+          <div className="relative">
+            <button
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="flex items-center gap-2 group"
             >
-              <div className="flex-shrink-0 w-16 text-sm font-semibold text-gray-500 dark:text-gray-400">
-                {apt.time}
-              </div>
-              <div className="flex-1">
-                <h4 className="text-sm font-bold text-gray-900 dark:text-white">
-                  {apt.patient}
-                </h4>
-                <p className="text-xs text-gray-500">{apt.type}</p>
-              </div>
-              <div
-                className={`text-xs px-3 py-1 rounded-full font-medium ${
-                  apt.status === "Completed"
-                    ? "bg-green-100 text-green-700"
-                    : apt.status === "In Progress"
-                    ? "bg-blue-100 text-blue-700"
-                    : "bg-gray-100 text-gray-600"
+              <h3 className="font-bold text-lg text-gray-900 dark:text-white group-hover:text-primary-500 transition-colors">
+                {view === "today" ? "Today's Schedule" : "All Appointments"}
+              </h3>
+              <ChevronDown
+                className={`w-5 h-5 text-gray-400 group-hover:text-primary-500 transition-all ${
+                  isDropdownOpen ? "rotate-180" : ""
                 }`}
-              >
-                {apt.status}
+              />
+            </button>
+
+            {isDropdownOpen && (
+              <div className="absolute top-full left-0 mt-2 w-56 bg-white dark:bg-dark-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 py-2 z-40 animate-in fade-in zoom-in-95 duration-200">
+                <button
+                  onClick={() => {
+                    setView("today");
+                    setIsDropdownOpen(false);
+                  }}
+                  className={`w-full text-left px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-50 dark:hover:bg-dark-700 ${
+                    view === "today"
+                      ? "text-primary-600 bg-primary-50/50 dark:bg-primary-900/10"
+                      : "text-gray-600 dark:text-gray-400"
+                  }`}
+                >
+                  Today's Schedule
+                </button>
+                <button
+                  onClick={() => {
+                    setView("all");
+                    setIsDropdownOpen(false);
+                  }}
+                  className={`w-full text-left px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-50 dark:hover:bg-dark-700 ${
+                    view === "all"
+                      ? "text-primary-600 bg-primary-50/50 dark:bg-primary-900/10"
+                      : "text-gray-600 dark:text-gray-400"
+                  }`}
+                >
+                  All Appointments
+                </button>
               </div>
+            )}
+          </div>
+        </div>
+        <div className="space-y-4">
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-10 text-gray-400">
+              <Loader2 className="w-8 h-8 animate-spin mb-2" />
+              <p>Loading schedule...</p>
             </div>
-          ))}
+          ) : appointments.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-10 text-gray-400 text-center border-2 border-dashed border-gray-100 dark:border-gray-700/50 rounded-3xl">
+              <Calendar className="w-12 h-12 mb-4 opacity-20" />
+              <p className="font-medium text-lg">
+                {view === "today"
+                  ? "No appointments for today"
+                  : "No appointments found"}
+              </p>
+              <p className="text-sm">
+                {view === "today"
+                  ? "Enjoy your free time!"
+                  : "You don't have any appointments yet."}
+              </p>
+            </div>
+          ) : (
+            appointments.map((apt, i) => {
+              const appTime = new Date(apt.dateTime).toLocaleTimeString(
+                "en-US",
+                {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                }
+              );
+
+              return (
+                <div
+                  key={apt.id}
+                  className="flex items-center p-4 rounded-2xl bg-gray-50 dark:bg-dark-700/50 hover:bg-gray-100 dark:hover:bg-dark-700 transition-colors cursor-pointer group"
+                >
+                  <div className="flex-shrink-0 w-28 text-sm font-semibold text-gray-500 dark:text-gray-400 flex flex-col items-start">
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-3.5 h-3.5" />
+                      {appTime}
+                    </div>
+                    {view === "all" && (
+                      <div className="text-[10px] text-gray-400 mt-1 pl-5 font-normal">
+                        {new Date(apt.dateTime).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="text-sm font-bold text-gray-900 dark:text-white">
+                      {apt.patientName}
+                    </h4>
+                    <p className="text-xs text-gray-500">
+                      {view === "today" ? "General Checkup" : "Consultation"}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Button
+                      size="sm"
+                      className="rounded-full px-4 h-8"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/doctor/video-call/${apt.id}`);
+                      }}
+                    >
+                      Start Call
+                    </Button>
+                    <div
+                      className={`text-xs px-3 py-1 rounded-full font-medium ${
+                        apt.status === "Completed" || apt.status === "Confirmed"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-primary-100 text-primary-700"
+                      }`}
+                    >
+                      {apt.status}
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
 
@@ -291,6 +475,71 @@ export default function DoctorDashboard() {
               <Button
                 variant="outline"
                 onClick={() => setIsPendingModalOpen(false)}
+                className="rounded-xl"
+              >
+                Close
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Total Patients Modal */}
+      {isPatientsModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-dark-800 w-full max-w-lg rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-700">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                Total Patients
+              </h2>
+              <button
+                onClick={() => setIsPatientsModalOpen(false)}
+                className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-dark-700 text-gray-500 transition-colors"
+                aria-label="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-4 max-h-[60vh] overflow-y-auto">
+              {loadingPatients ? (
+                <div className="flex justify-center items-center py-8">
+                  <Loader2 className="w-8 h-8 text-primary-500 animate-spin" />
+                </div>
+              ) : patients.length === 0 ? (
+                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                  No patients found
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {patients.map((patient) => (
+                    <div
+                      key={patient.id}
+                      className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 dark:bg-dark-700/50 hover:bg-gray-100 dark:hover:bg-dark-700 transition-all border border-transparent"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-full bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center text-teal-600 dark:text-teal-400">
+                          <User className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-gray-900 dark:text-white text-sm">
+                            {patient.fullName}
+                          </h4>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {patient.age} years • {patient.gender}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="p-6 bg-gray-50 dark:bg-dark-700/30 border-t border-gray-100 dark:border-gray-700 flex justify-end">
+              <Button
+                variant="outline"
+                onClick={() => setIsPatientsModalOpen(false)}
                 className="rounded-xl"
               >
                 Close

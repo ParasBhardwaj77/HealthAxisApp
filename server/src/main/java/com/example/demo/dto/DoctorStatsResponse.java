@@ -12,4 +12,5 @@ public class DoctorStatsResponse {
     private String fullName;
     private String email;
     private boolean onLeave;
+    private int patientCount;
 }

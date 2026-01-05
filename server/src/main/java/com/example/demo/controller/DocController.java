@@ -13,8 +13,9 @@ import org.springframework.web.bind.annotation.*;
 public class DocController {
 
     private final DocService docService;
+    private final com.example.demo.service.AppointmentService appointmentService;
 
-    @PreAuthorize("hasRole('DOCTOR')")
+    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN')")
     @PutMapping("/doctor/leave")
     public ResponseEntity<?> updateLeaveStatus(
             @RequestParam boolean onLeave,
@@ -24,7 +25,7 @@ public class DocController {
         return ResponseEntity.ok("Leave status updated");
     }
 
-    @PreAuthorize("hasRole('DOCTOR')")
+    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN')")
     @GetMapping("/doctor/me")
     public com.example.demo.dto.DoctorStatsResponse getDoctor(Authentication authentication) {
         com.example.demo.entity.Doctor doc = docService.getDoctorByEmail(authentication.getName());
@@ -32,12 +33,35 @@ public class DocController {
                 doc.getId(),
                 doc.getFullName(),
                 doc.getUser() != null ? doc.getUser().getEmail() : "No Email",
-                doc.getOnLeave());
+                doc.getOnLeave(),
+                docService.getUniquePatientCount(doc));
     }
 
     @PreAuthorize("hasAnyRole('PATIENT', 'ADMIN')")
     @GetMapping("/doctors")
     public java.util.List<com.example.demo.dto.DoctorResponse> getAllDoctors() {
         return docService.getAllDoctors();
+    }
+
+    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN')")
+    @GetMapping("/doctor/appointments/today")
+    public java.util.List<com.example.demo.dto.AppointmentResponse> getTodaySchedule(Authentication authentication) {
+        return appointmentService.getDoctorAppointmentsToday(authentication.getName());
+    }
+
+    @GetMapping("/doctor/appointments/all")
+    public java.util.List<com.example.demo.dto.AppointmentResponse> getAllDoctorAppointments(
+            Authentication authentication) {
+        if (authentication == null) {
+            throw new RuntimeException("Authentication failed: User is null");
+        }
+        return appointmentService.getDoctorAppointments(authentication.getName());
+    }
+
+    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN')")
+    @GetMapping("/doctor/patients")
+    public java.util.List<com.example.demo.dto.PatientResponse> getDoctorPatients(
+            Authentication authentication) {
+        return docService.getDoctorPatients(authentication.getName());
     }
 }
