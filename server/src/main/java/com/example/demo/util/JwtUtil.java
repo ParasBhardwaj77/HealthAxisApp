@@ -1,7 +1,5 @@
 package com.example.demo.util;
 
-
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -21,13 +19,12 @@ public class JwtUtil {
     @Value("${jwt.secret}")
     private String secret;
 
-    @Value("${jwt.expiration}")
+    @Value("${jwt.expiration:86400000}")
     private long expiration;
 
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(secret.getBytes());
     }
-
 
     public String extractEmail(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -52,7 +49,6 @@ public class JwtUtil {
                 .parseClaimsJws(token)
                 .getBody();
     }
-
 
     public String generateToken(String email, String role) {
         Map<String, Object> claims = new HashMap<>();
