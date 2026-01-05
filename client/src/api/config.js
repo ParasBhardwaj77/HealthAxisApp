@@ -10,15 +10,21 @@ export const API_ENDPOINTS = {
         PATIENTS: `${API_BASE_URL}/admin/patient-list`,
         APPOINTMENTS: `${API_BASE_URL}/admin/appointments`,
         ACTIVITIES: `${API_BASE_URL}/admin/activities`,
+        REVENUE: `${API_BASE_URL}/admin/revenue`,
     },
     PATIENT: {
         DOCTORS: `${API_BASE_URL}/doctors`,
         APPOINTMENTS: `${API_BASE_URL}/appointments`,
         MY_APPOINTMENTS: `${API_BASE_URL}/appointments/my`,
+        ME: `${API_BASE_URL}/patient/me`,
     },
     DOCTOR: {
         TODAY_APPOINTMENTS: `${API_BASE_URL}/doctor/appointments/today`,
         ALL_APPOINTMENTS: `${API_BASE_URL}/doctor/appointments/all`,
+    },
+    PAYMENT: {
+        CREATE_SESSION: `${API_BASE_URL}/payment/create-checkout-session`,
+        CONFIRM: `${API_BASE_URL}/payment/confirm`, // We will create this
     },
     REPORTS: {
         UPLOAD: `${API_BASE_URL}/reports/upload`,

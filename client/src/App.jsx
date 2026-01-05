@@ -10,9 +10,12 @@ import AdminSettings from "./pages/admin/Settings";
 import AddUser from "./pages/admin/AddUser";
 import RecentActivity from "./pages/admin/RecentActivity";
 import AdminReports from "./pages/admin/Reports";
+import RevenueAnalytics from "./pages/admin/RevenueAnalytics";
 import DoctorDashboard from "./pages/doctor/DoctorDashboard";
 import PatientDashboard from "./pages/patient/PatientDashboard";
 import PatientAppointments from "./pages/patient/AppointmentsList";
+import PaymentSuccess from "./pages/payment/PaymentSuccess";
+import PaymentCancel from "./pages/payment/PaymentCancel";
 import PatientReports from "./pages/patient/ReportsList";
 import DoctorSettings from "./pages/doctor/Settings";
 import PatientSettings from "./pages/patient/Settings";
@@ -43,7 +46,9 @@ function App() {
           <Route path="settings" element={<AdminSettings />} />
           <Route path="add-user" element={<AddUser />} />
           <Route path="recent-activity" element={<RecentActivity />} />
+          <Route path="recent-activity" element={<RecentActivity />} />
           <Route path="reports" element={<AdminReports />} />
+          <Route path="analytics" element={<RevenueAnalytics />} />
         </Route>
 
         <Route path="/doctor" element={<DashboardLayout role="Doctor" />}>
@@ -61,6 +66,8 @@ function App() {
 
         {/* Catch all */}
         <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route path="/payment/success" element={<PaymentSuccess />} />
+        <Route path="/payment/cancel" element={<PaymentCancel />} />
       </Routes>
     </BrowserRouter>
   );

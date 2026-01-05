@@ -59,4 +59,17 @@ public class AdminService {
     public void deleteAppointment(String id) {
         appointmentRepo.deleteById(id);
     }
+
+    public com.example.demo.dto.RevenueResponse getRevenueStats() {
+        List<com.example.demo.entity.Appointment> paidAppointments = appointmentRepo.findByPaymentStatus("PAID");
+
+        double totalRevenue = paidAppointments.size() * 100.0;
+
+        java.util.Map<String, Double> revenueByDate = paidAppointments.stream()
+                .collect(Collectors.groupingBy(
+                        a -> a.getDateTime().toLocalDate().toString(),
+                        Collectors.summingDouble(a -> 100.0)));
+
+        return new com.example.demo.dto.RevenueResponse(totalRevenue, revenueByDate);
+    }
 }

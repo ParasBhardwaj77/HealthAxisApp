@@ -30,7 +30,7 @@ public class AppointmentService {
                 }
         }
 
-        public void bookAppointment(String patientEmail, AppointmentRequest req) {
+        public Appointment bookAppointment(String patientEmail, AppointmentRequest req) {
                 // 1. Get Patient
                 User user = userRepo.findByEmail(patientEmail)
                                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -74,6 +74,7 @@ public class AppointmentService {
                 activityService.logActivity(
                                 "Appointment scheduled: " + patient.getFullName() + " with " + doctor.getFullName(),
                                 com.example.demo.entity.Activity.ActivityType.NEW_APPOINTMENT);
+                return appointment;
         }
 
         public java.util.List<com.example.demo.dto.AppointmentResponse> getPatientAppointments(String patientEmail) {

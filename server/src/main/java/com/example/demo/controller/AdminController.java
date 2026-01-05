@@ -63,4 +63,9 @@ public class AdminController {
         adminService.deleteAppointment(id);
     }
 
+    @GetMapping("/revenue")
+    public com.example.demo.dto.RevenueResponse getRevenueStats() {
+        return adminService.getRevenueStats();
+    }
+
 }

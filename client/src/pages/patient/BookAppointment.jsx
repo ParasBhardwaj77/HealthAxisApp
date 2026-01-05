@@ -81,6 +81,7 @@ export default function BookAppointment({ onBack }) {
 
       const dateTime = `${selectedDate}T${hours}:${minutes}:00`;
 
+      // 1. Create Appointment
       const res = await fetchWithAuth(API_ENDPOINTS.PATIENT.APPOINTMENTS, {
         method: "POST",
         body: JSON.stringify({
@@ -90,10 +91,25 @@ export default function BookAppointment({ onBack }) {
       });
 
       if (res.ok) {
-        alert(
-          `Appointment confirmed with ${selectedDoctor.name} on ${selectedDate} at ${selectedTime}`
+        const appointmentData = await res.json(); // Assuming backend returns the created appointment with ID
+
+        // 2. Initiate Stripe Checkout
+        const paymentRes = await fetchWithAuth(
+          API_ENDPOINTS.PAYMENT.CREATE_SESSION,
+          {
+            method: "POST",
+            body: JSON.stringify({
+              appointmentId: appointmentData.id, // Ensure we get the ID back
+            }),
+          }
         );
-        onBack();
+
+        if (paymentRes.ok) {
+          const { paymentUrl } = await paymentRes.json();
+          window.location.href = paymentUrl; // Redirect to Stripe
+        } else {
+          alert("Failed to initiate payment. Please try again.");
+        }
       } else {
         const errorMsg = await res.text();
         alert(`Please select another time slot! ${errorMsg}`);

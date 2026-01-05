@@ -33,9 +33,10 @@ export default function PatientDashboard() {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
-        const [appointmentsRes, reportsRes] = await Promise.all([
+        const [appointmentsRes, reportsRes, profileRes] = await Promise.all([
           fetchWithAuth(API_ENDPOINTS.PATIENT.MY_APPOINTMENTS),
           fetchWithAuth(API_ENDPOINTS.REPORTS.MY),
+          fetchWithAuth(API_ENDPOINTS.PATIENT.ME),
         ]);
 
         if (appointmentsRes.ok) {
@@ -51,8 +52,10 @@ export default function PatientDashboard() {
           setReports(reportsData);
         }
 
-        const user = JSON.parse(localStorage.getItem("user") || "{}");
-        if (user.name) setUserProfile({ name: user.name });
+        if (profileRes.ok) {
+          const profileData = await profileRes.json();
+          setUserProfile({ name: profileData.fullName });
+        }
       } catch (err) {
         console.error("Dashboard fetch error:", err);
         setError("Error loading dashboard data");

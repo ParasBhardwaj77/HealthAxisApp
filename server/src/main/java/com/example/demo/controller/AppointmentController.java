@@ -21,8 +21,8 @@ public class AppointmentController {
     @PreAuthorize("hasRole('PATIENT')")
     @PostMapping
     public ResponseEntity<?> bookAppointment(@RequestBody AppointmentRequest req, Authentication auth) {
-        appointmentService.bookAppointment(auth.getName(), req);
-        return ResponseEntity.ok("Appointment booked successfully");
+        com.example.demo.entity.Appointment appt = appointmentService.bookAppointment(auth.getName(), req);
+        return ResponseEntity.ok(new com.example.demo.dto.AppointmentResponse(appt));
     }
 
     @PreAuthorize("hasRole('PATIENT')")
