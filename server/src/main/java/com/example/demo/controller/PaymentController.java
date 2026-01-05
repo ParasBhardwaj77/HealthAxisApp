@@ -18,10 +18,10 @@ import com.example.demo.repository.AppointmentRepository;
 @RequiredArgsConstructor
 public class PaymentController {
 
-        @Value("${stripe.api.key}")
+        @Value("${stripe.secret.key:}")
         private String stripeSecretKey;
 
-        @Value("${stripe.public.key}")
+        @Value("${stripe.public.key:}")
         private String stripePublicKey; // Just in case we need to send it to frontend
 
         private final AppointmentRepository appointmentRepository;
