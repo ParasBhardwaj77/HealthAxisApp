@@ -55,6 +55,7 @@ public class ReportService {
                                                 r.getFileName(),
                                                 r.getFileType(),
                                                 r.getDoctor().getFullName(),
+                                                r.getPatient().getFullName(),
                                                 r.getCreatedAt()))
                                 .collect(Collectors.toList());
         }
@@ -71,8 +72,28 @@ public class ReportService {
                                                 r.getFileName(),
                                                 r.getFileType(),
                                                 r.getDoctor().getFullName(),
+                                                r.getPatient().getFullName(),
                                                 r.getCreatedAt()))
                                 .collect(Collectors.toList());
+        }
+
+        public List<ReportResponse> getAllReports() {
+                return reportRepo.findAll().stream()
+                                .map(r -> new ReportResponse(
+                                                r.getId(),
+                                                r.getFileName(),
+                                                r.getFileType(),
+                                                r.getDoctor().getFullName(),
+                                                r.getPatient().getFullName(),
+                                                r.getCreatedAt()))
+                                .collect(Collectors.toList());
+        }
+
+        public void deleteReport(String reportId) {
+                if (!reportRepo.existsById(reportId)) {
+                        throw new RuntimeException("Report not found");
+                }
+                reportRepo.deleteById(reportId);
         }
 
         public Report getReportFile(String reportId) {

@@ -20,6 +20,7 @@ const menus = {
     { name: "Doctors", path: "/admin/doctors", icon: Stethoscope },
     { name: "Patients", path: "/admin/patients", icon: Users },
     { name: "Appointments", path: "/admin/appointments", icon: Calendar },
+    { name: "Reports", path: "/admin/reports", icon: FileText },
     { name: "Settings", path: "/admin/settings", icon: Settings },
   ],
   Doctor: [

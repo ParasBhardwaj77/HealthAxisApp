@@ -23,8 +23,10 @@ export const API_ENDPOINTS = {
     REPORTS: {
         UPLOAD: `${API_BASE_URL}/reports/upload`,
         MY: `${API_BASE_URL}/reports/my`,
+        ALL: `${API_BASE_URL}/reports/all`,
         GET_PATIENT_REPORTS: (patientId) => `${API_BASE_URL}/reports/patient/${patientId}`,
         DOWNLOAD: (id) => `${API_BASE_URL}/reports/${id}/download`,
+        DELETE: (id) => `${API_BASE_URL}/reports/${id}`,
     },
 };
 

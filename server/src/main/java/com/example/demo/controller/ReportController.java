@@ -51,6 +51,19 @@ public class ReportController {
         return reportService.getReportsByPatientId(patientId);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/all")
+    public List<ReportResponse> getAllReports() {
+        return reportService.getAllReports();
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteReport(@PathVariable String id) {
+        reportService.deleteReport(id);
+        return ResponseEntity.ok("Report deleted successfully");
+    }
+
     @GetMapping("/{id}/download")
     public ResponseEntity<byte[]> downloadReport(@PathVariable String id) {
         Report report = reportService.getReportFile(id);

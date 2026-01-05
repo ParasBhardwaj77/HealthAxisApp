@@ -13,5 +13,6 @@ public class ReportResponse {
     private String fileName;
     private String fileType;
     private String doctorName;
+    private String patientName;
     private LocalDateTime createdAt;
 }

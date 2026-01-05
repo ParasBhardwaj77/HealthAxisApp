@@ -9,6 +9,7 @@ import AdminAppointments from "./pages/admin/Appointments";
 import AdminSettings from "./pages/admin/Settings";
 import AddUser from "./pages/admin/AddUser";
 import RecentActivity from "./pages/admin/RecentActivity";
+import AdminReports from "./pages/admin/Reports";
 import DoctorDashboard from "./pages/doctor/DoctorDashboard";
 import PatientDashboard from "./pages/patient/PatientDashboard";
 import PatientAppointments from "./pages/patient/AppointmentsList";
@@ -42,6 +43,7 @@ function App() {
           <Route path="settings" element={<AdminSettings />} />
           <Route path="add-user" element={<AddUser />} />
           <Route path="recent-activity" element={<RecentActivity />} />
+          <Route path="reports" element={<AdminReports />} />
         </Route>
 
         <Route path="/doctor" element={<DashboardLayout role="Doctor" />}>
