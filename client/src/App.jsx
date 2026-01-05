@@ -10,7 +10,7 @@ import AdminSettings from "./pages/admin/Settings";
 import AddUser from "./pages/admin/AddUser";
 import RecentActivity from "./pages/admin/RecentActivity";
 import AdminReports from "./pages/admin/Reports";
-import RevenueAnalytics from "./pages/admin/RevenueAnalytics";
+
 import DoctorDashboard from "./pages/doctor/DoctorDashboard";
 import PatientDashboard from "./pages/patient/PatientDashboard";
 import PatientAppointments from "./pages/patient/AppointmentsList";
@@ -48,7 +48,7 @@ function App() {
           <Route path="recent-activity" element={<RecentActivity />} />
           <Route path="recent-activity" element={<RecentActivity />} />
           <Route path="reports" element={<AdminReports />} />
-          <Route path="analytics" element={<RevenueAnalytics />} />
+          <Route path="reports" element={<AdminReports />} />
         </Route>
 
         <Route path="/doctor" element={<DashboardLayout role="Doctor" />}>
@@ -62,6 +62,7 @@ function App() {
           <Route path="appointments" element={<PatientAppointments />} />
           <Route path="reports" element={<PatientReports />} />
           <Route path="settings" element={<PatientSettings />} />
+          <Route path="video-call/:id" element={<VideoCall />} />
         </Route>
 
         {/* Catch all */}

@@ -18,73 +18,79 @@ import com.example.demo.repository.AppointmentRepository;
 @RequiredArgsConstructor
 public class PaymentController {
 
-    @Value("${stripe.api.key}")
-    private String stripeSecretKey;
+        @Value("${stripe.api.key}")
+        private String stripeSecretKey;
 
-    @Value("${stripe.public.key}")
-    private String stripePublicKey; // Just in case we need to send it to frontend
+        @Value("${stripe.public.key}")
+        private String stripePublicKey; // Just in case we need to send it to frontend
 
-    private final AppointmentRepository appointmentRepository;
+        private final AppointmentRepository appointmentRepository;
 
-    @PostMapping("/create-checkout-session")
-    public PaymentResponse createCheckoutSession(@RequestBody PaymentRequest paymentRequest) throws StripeException {
-        Stripe.apiKey = stripeSecretKey;
+        @PostMapping("/create-checkout-session")
+        public PaymentResponse createCheckoutSession(@RequestBody PaymentRequest paymentRequest)
+                        throws StripeException {
+                Stripe.apiKey = stripeSecretKey;
 
-        // Fetch appointment details if needed, for metadata
-        Appointment appointment = appointmentRepository.findById(paymentRequest.getAppointmentId())
-                .orElseThrow(() -> new RuntimeException("Appointment not found"));
+                // Fetch appointment details if needed, for metadata
+                Appointment appointment = appointmentRepository.findById(paymentRequest.getAppointmentId())
+                                .orElseThrow(() -> new RuntimeException("Appointment not found"));
 
-        String YOUR_DOMAIN = "http://localhost:5173"; // Frontend URL
+                String YOUR_DOMAIN = "http://localhost:5173"; // Frontend URL
 
-        SessionCreateParams params = SessionCreateParams.builder()
-                .setMode(SessionCreateParams.Mode.PAYMENT)
-                .setSuccessUrl(YOUR_DOMAIN + "/payment/success?session_id={CHECKOUT_SESSION_ID}&appointment_id="
-                        + paymentRequest.getAppointmentId())
-                .setCancelUrl(YOUR_DOMAIN + "/payment/cancel")
-                .addLineItem(
-                        SessionCreateParams.LineItem.builder()
-                                .setQuantity(1L)
-                                .setPriceData(
-                                        SessionCreateParams.LineItem.PriceData.builder()
-                                                .setCurrency("usd")
-                                                .setUnitAmount(10000L) // $100.00 in cents
-                                                .setProductData(
-                                                        SessionCreateParams.LineItem.PriceData.ProductData.builder()
-                                                                .setName("Doctor Consultation")
-                                                                .setDescription("Appointment with "
-                                                                        + appointment.getDoctorName())
+                SessionCreateParams params = SessionCreateParams.builder()
+                                .setMode(SessionCreateParams.Mode.PAYMENT)
+                                .setSuccessUrl(YOUR_DOMAIN
+                                                + "/payment/success?session_id={CHECKOUT_SESSION_ID}&appointment_id="
+                                                + paymentRequest.getAppointmentId())
+                                .setCancelUrl(YOUR_DOMAIN + "/payment/cancel")
+                                .addLineItem(
+                                                SessionCreateParams.LineItem.builder()
+                                                                .setQuantity(1L)
+                                                                .setPriceData(
+                                                                                SessionCreateParams.LineItem.PriceData
+                                                                                                .builder()
+                                                                                                .setCurrency("usd")
+                                                                                                .setUnitAmount(10000L) // $100.00
+                                                                                                                       // in
+                                                                                                                       // cents
+                                                                                                .setProductData(
+                                                                                                                SessionCreateParams.LineItem.PriceData.ProductData
+                                                                                                                                .builder()
+                                                                                                                                .setName("Doctor Consultation")
+                                                                                                                                .setDescription("Appointment with "
+                                                                                                                                                + appointment.getDoctorName())
+                                                                                                                                .build())
+                                                                                                .build())
                                                                 .build())
-                                                .build())
-                                .build())
-                .build();
+                                .build();
 
-        Session session = Session.create(params);
+                Session session = Session.create(params);
 
-        return new PaymentResponse(session.getUrl());
-    }
-
-    @PostMapping("/confirm")
-    public ResponseEntity<?> confirmPayment(@RequestBody com.example.demo.dto.PaymentConfirmRequest request) {
-        try {
-            // Verify session if needed using Stripe API
-            Stripe.apiKey = stripeSecretKey;
-            Session session = Session.retrieve(request.getSessionId());
-
-            if ("paid".equals(session.getPaymentStatus())) {
-                Appointment appointment = appointmentRepository.findById(request.getAppointmentId())
-                        .orElseThrow(() -> new RuntimeException("Appointment not found"));
-
-                appointment.setPaymentStatus("PAID");
-                // Also ensure status is UPCOMING/CONFIRMED if it was pending
-                appointment.setStatus(Appointment.AppointmentStatus.CONFIRMED);
-                appointmentRepository.save(appointment);
-                return ResponseEntity.ok("Payment confirmed");
-            } else {
-                return ResponseEntity.badRequest().body("Payment not successful");
-            }
-
-        } catch (StripeException e) {
-            return ResponseEntity.badRequest().body("Error verifying payment: " + e.getMessage());
+                return new PaymentResponse(session.getUrl());
         }
-    }
+
+        @PostMapping("/confirm")
+        public ResponseEntity<?> confirmPayment(@RequestBody com.example.demo.dto.PaymentConfirmRequest request) {
+                try {
+                        // Verify session if needed using Stripe API
+                        Stripe.apiKey = stripeSecretKey;
+                        Session session = Session.retrieve(request.getSessionId());
+
+                        if ("paid".equals(session.getPaymentStatus())) {
+                                Appointment appointment = appointmentRepository.findById(request.getAppointmentId())
+                                                .orElseThrow(() -> new RuntimeException("Appointment not found"));
+
+                                appointment.setPaymentStatus("PAID");
+                                // Also ensure status is UPCOMING/CONFIRMED if it was pending
+                                appointment.setStatus(Appointment.AppointmentStatus.UPCOMING);
+                                appointmentRepository.save(appointment);
+                                return ResponseEntity.ok("Payment confirmed");
+                        } else {
+                                return ResponseEntity.badRequest().body("Payment not successful");
+                        }
+
+                } catch (StripeException e) {
+                        return ResponseEntity.badRequest().body("Error verifying payment: " + e.getMessage());
+                }
+        }
 }

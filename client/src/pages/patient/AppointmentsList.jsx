@@ -207,9 +207,14 @@ export default function AppointmentsList({ onBack }) {
                 </span>
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                {app.status === "Upcoming" && (
+                {(app.status === "Upcoming" || app.status === "Confirmed") && (
                   <div className="flex items-center justify-end gap-2">
-                    <Button variant="primary" size="sm" className="rounded-xl">
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      className="rounded-xl"
+                      onClick={() => navigate(`/patient/video-call/${app.id}`)}
+                    >
                       <Video className="w-4 h-4 mr-2" />
                       Join Appointment
                     </Button>

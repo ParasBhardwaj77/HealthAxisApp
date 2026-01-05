@@ -64,8 +64,8 @@ public class AdminController {
     }
 
     @GetMapping("/revenue")
-    public com.example.demo.dto.RevenueResponse getRevenueStats() {
-        return adminService.getRevenueStats();
+    public com.example.demo.dto.RevenueResponse getRevenueStats(@RequestParam(defaultValue = "all") String range) {
+        return adminService.getRevenueStats(range);
     }
 
 }

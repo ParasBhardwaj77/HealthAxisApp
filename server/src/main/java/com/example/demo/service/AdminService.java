@@ -60,15 +60,59 @@ public class AdminService {
         appointmentRepo.deleteById(id);
     }
 
-    public com.example.demo.dto.RevenueResponse getRevenueStats() {
+    public com.example.demo.dto.RevenueResponse getRevenueStats(String range) {
         List<com.example.demo.entity.Appointment> paidAppointments = appointmentRepo.findByPaymentStatus("PAID");
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
 
+        List<com.example.demo.entity.Appointment> filteredAppointments = paidAppointments;
+        java.util.Map<String, Double> revenueByDate;
+
+        if ("today".equalsIgnoreCase(range)) {
+            filteredAppointments = paidAppointments.stream()
+                    .filter(a -> a.getDateTime().toLocalDate().isEqual(now.toLocalDate()))
+                    .collect(Collectors.toList());
+
+            revenueByDate = filteredAppointments.stream()
+                    .collect(Collectors.groupingBy(
+                            a -> String.format("%02d:00", a.getDateTime().getHour()),
+                            Collectors.summingDouble(a -> 100.0)));
+        } else if ("week".equalsIgnoreCase(range)) {
+            filteredAppointments = paidAppointments.stream()
+                    .filter(a -> a.getDateTime().isAfter(now.minusDays(7)))
+                    .collect(Collectors.toList());
+
+            revenueByDate = filteredAppointments.stream()
+                    .collect(Collectors.groupingBy(
+                            a -> a.getDateTime().toLocalDate().toString(),
+                            Collectors.summingDouble(a -> 100.0)));
+        } else if ("month".equalsIgnoreCase(range)) {
+            filteredAppointments = paidAppointments.stream()
+                    .filter(a -> a.getDateTime().isAfter(now.minusDays(30)))
+                    .collect(Collectors.toList());
+
+            revenueByDate = filteredAppointments.stream()
+                    .collect(Collectors.groupingBy(
+                            a -> a.getDateTime().toLocalDate().toString(),
+                            Collectors.summingDouble(a -> 100.0)));
+        } else {
+            // Default "all" or any other case
+            revenueByDate = paidAppointments.stream()
+                    .collect(Collectors.groupingBy(
+                            a -> a.getDateTime().toLocalDate().toString(),
+                            Collectors.summingDouble(a -> 100.0)));
+        }
+
+        // Calculate total revenue from ALL paid appointments, or just the filtered
+        // ones?
+        // Usually "Total Revenue" on the dashboard implies All-Time.
+        // But the user might expect the "Total" to reflect the filter?
+        // "Show total revenue and revenue grouped by date".
+        // Let's keep totalRevenue as ALL time for the main card, as that's standard
+        // dashboard behavior.
+        // Unless the user explicitly asked for "Revenue for past 7 days card".
+        // The implementation_plan said "Display Total Revenue Card" separate from
+        // graph.
         double totalRevenue = paidAppointments.size() * 100.0;
-
-        java.util.Map<String, Double> revenueByDate = paidAppointments.stream()
-                .collect(Collectors.groupingBy(
-                        a -> a.getDateTime().toLocalDate().toString(),
-                        Collectors.summingDouble(a -> 100.0)));
 
         return new com.example.demo.dto.RevenueResponse(totalRevenue, revenueByDate);
     }

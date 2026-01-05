@@ -223,7 +223,13 @@ export default function PatientDashboard() {
                             with {app.doctorName}
                           </p>
                           <div className="mt-4 flex flex-wrap gap-2">
-                            <Button size="sm" className="h-8 rounded-xl">
+                            <Button
+                              size="sm"
+                              className="h-8 rounded-xl"
+                              onClick={() =>
+                                navigate(`/patient/video-call/${app.id}`)
+                              }
+                            >
                               <Video className="w-3.5 h-3.5 mr-2" />
                               Join Call
                             </Button>
@@ -264,7 +270,7 @@ export default function PatientDashboard() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setSearchParams({ view: "reports" })}
+              onClick={() => navigate("/patient/reports")}
             >
               View All
             </Button>

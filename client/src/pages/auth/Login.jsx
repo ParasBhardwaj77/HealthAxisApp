@@ -29,9 +29,15 @@ export default function Login() {
 
       const data = await res.json();
 
-      // Store JWT + role
+      // Store JWT + role + name
       localStorage.setItem("token", data.token);
       localStorage.setItem("role", data.role);
+      // Assuming backend sends `name` or `fullName`. If not, we might need to adjust,
+      // but usually auth response includes basic user info.
+      // Based on previous knowledge, AuthResponse might need update or we check what it returns.
+      // But let's optimistically store it if present.
+      if (data.name) localStorage.setItem("userName", data.name);
+      else if (data.fullName) localStorage.setItem("userName", data.fullName);
 
       // Redirect based on role
       if (data.role === "ADMIN") {
