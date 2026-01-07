@@ -42,10 +42,32 @@ public class AppointmentService {
                                 .orElseThrow(() -> new RuntimeException("Doctor not found"));
 
                 // 3. Check Conflict
-                if (appointmentRepo.existsByDoctorAndDateTimeAndStatusNot(doctor, req.getDateTime(),
-                                Appointment.AppointmentStatus.CANCELED)) {
-                        throw new RuntimeException("Doctor is already booked at this time");
+                java.util.Optional<Appointment> existingApt = appointmentRepo.findByDoctorAndDateTimeAndStatusNot(
+                                doctor,
+                                req.getDateTime(), Appointment.AppointmentStatus.CANCELED);
+
+                if (existingApt.isPresent()) {
+                        Appointment apt = existingApt.get();
+                        boolean isSamePatient = apt.getPatient().getId().equals(patient.getId());
+                        boolean isExpired = apt.getStatus() == Appointment.AppointmentStatus.PENDING_PAYMENT &&
+                                        apt.getCreatedAt().isBefore(java.time.LocalDateTime.now().minusMinutes(10));
+
+                        if (apt.getStatus() == Appointment.AppointmentStatus.PENDING_PAYMENT
+                                        && (isSamePatient || isExpired)) {
+                                // 1. Clean up from patient's bidirectional list
+                                Patient conflictPatient = apt.getPatient();
+                                if (conflictPatient != null) {
+                                        conflictPatient.getAppointments().removeIf(a -> a.getId().equals(apt.getId()));
+                                        patientRepo.save(conflictPatient);
+                                }
+
+                                // 2. Delete the old pending document
+                                appointmentRepo.delete(apt);
+                        } else {
+                                throw new RuntimeException("Doctor is already booked at this time");
+                        }
                 }
+
                 if (appointmentRepo.existsByPatientAndDateTimeAndStatusNot(patient, req.getDateTime(),
                                 Appointment.AppointmentStatus.CANCELED)) {
                         throw new RuntimeException("You already have an appointment at this time");
@@ -59,6 +81,7 @@ public class AppointmentService {
                 appointment.setDoctorName(doctor.getFullName());
                 appointment.setDateTime(req.getDateTime());
                 appointment.setStatus(Appointment.AppointmentStatus.PENDING_PAYMENT);
+                appointment.setCreatedAt(java.time.LocalDateTime.now()); // Ensure fresh timestamp
 
                 appointmentRepo.save(appointment);
 

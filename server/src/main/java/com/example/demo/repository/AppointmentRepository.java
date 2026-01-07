@@ -24,5 +24,8 @@ public interface AppointmentRepository extends MongoRepository<Appointment, Stri
         boolean existsByPatientAndDateTimeAndStatusNot(Patient patient, LocalDateTime dateTime,
                         Appointment.AppointmentStatus status);
 
+        java.util.Optional<Appointment> findByDoctorAndDateTimeAndStatusNot(Doctor doctor, LocalDateTime dateTime,
+                        Appointment.AppointmentStatus status);
+
         List<Appointment> findByPaymentStatus(String paymentStatus);
 }

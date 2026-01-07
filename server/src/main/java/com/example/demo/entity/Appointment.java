@@ -42,6 +42,8 @@ public class Appointment {
 
     private String paymentStatus = "PENDING"; // PENDING, PAID
 
+    private LocalDateTime createdAt = LocalDateTime.now();
+
     public enum AppointmentStatus {
         PENDING_PAYMENT,
         UPCOMING,

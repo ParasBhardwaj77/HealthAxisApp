@@ -32,10 +32,7 @@ export default function PaymentCancel() {
           You cancelled the checkout process. To protect your schedule, the
           unpaid appointment has been removed.
         </p>
-        <Button
-          onClick={() => navigate("/patient/dashboard")}
-          className="w-full"
-        >
+        <Button onClick={() => navigate("/patient")} className="w-full">
           Return to Dashboard
         </Button>
       </div>

@@ -68,10 +68,7 @@ export default function PaymentSuccess() {
             Your appointment has been confirmed. You will receive a confirmation
             email shortly.
           </p>
-          <Button
-            onClick={() => navigate("/patient/dashboard")}
-            className="w-full"
-          >
+          <Button onClick={() => navigate("/patient")} className="w-full">
             Go to Dashboard
           </Button>
         </div>
@@ -92,7 +89,7 @@ export default function PaymentSuccess() {
           We couldn't verify your payment. Please try again or contact support.
         </p>
         <Button
-          onClick={() => navigate("/patient/dashboard")}
+          onClick={() => navigate("/patient")}
           variant="outline"
           className="w-full"
         >
