@@ -43,7 +43,7 @@ public class AdminService {
     public void deleteDoctor(String id) {
         doctorRepo.findById(id).ifPresent(doc -> {
             if (doc.getUser() != null) {
-                userRepo.delete(doc.getUser());
+                userRepo.delete(java.util.Objects.requireNonNull(doc.getUser()));
             }
             doctorRepo.delete(doc);
         });
@@ -52,7 +52,7 @@ public class AdminService {
     public void deletePatient(String id) {
         patientRepo.findById(id).ifPresent(p -> {
             if (p.getUser() != null) {
-                userRepo.delete(p.getUser());
+                userRepo.delete(java.util.Objects.requireNonNull(p.getUser()));
             }
             patientRepo.delete(p);
         });

@@ -38,7 +38,7 @@ public class AppointmentService {
                                 .orElseThrow(() -> new RuntimeException("Patient profile not found"));
 
                 // 2. Get Doctor
-                Doctor doctor = doctorRepo.findById(req.getDoctorId())
+                Doctor doctor = doctorRepo.findById(java.util.Objects.requireNonNull(req.getDoctorId()))
                                 .orElseThrow(() -> new RuntimeException("Doctor not found"));
 
                 // 3. Check Conflict

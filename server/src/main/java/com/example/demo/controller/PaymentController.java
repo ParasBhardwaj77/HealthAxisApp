@@ -24,6 +24,9 @@ public class PaymentController {
         @Value("${stripe.public.key:}")
         private String stripePublicKey; // Just in case we need to send it to frontend
 
+        @Value("${app.frontend.url}")
+        private String frontendUrl;
+
         private final AppointmentRepository appointmentRepository;
 
         @PostMapping("/create-checkout-session")
@@ -32,10 +35,11 @@ public class PaymentController {
                 Stripe.apiKey = stripeSecretKey;
 
                 // Fetch appointment details if needed, for metadata
-                Appointment appointment = appointmentRepository.findById(paymentRequest.getAppointmentId())
+                Appointment appointment = appointmentRepository
+                                .findById(java.util.Objects.requireNonNull(paymentRequest.getAppointmentId()))
                                 .orElseThrow(() -> new RuntimeException("Appointment not found"));
 
-                String YOUR_DOMAIN = "http://localhost:5173"; // Frontend URL
+                String YOUR_DOMAIN = java.util.Objects.requireNonNull(frontendUrl); // Frontend URL
 
                 SessionCreateParams params = SessionCreateParams.builder()
                                 .setMode(SessionCreateParams.Mode.PAYMENT)
