@@ -86,6 +86,8 @@ export default function DashboardLayout({ role }) {
         }
       } catch (err) {
         console.error("[Dashboard] Fetch error:", err.message);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -95,6 +97,7 @@ export default function DashboardLayout({ role }) {
   // Update leave status
   const updateLeaveStatus = async (newStatus) => {
     try {
+      setIsLoading(true);
       await fetchWithAuth(`${API_BASE_URL}/doctor/leave?onLeave=${newStatus}`, {
         method: "PUT",
       });
