@@ -68,4 +68,13 @@ public class AdminController {
         return adminService.getRevenueStats(range);
     }
 
+    @GetMapping("/me")
+    public com.example.demo.dto.AdminProfileResponse getMyProfile(
+            org.springframework.security.core.Authentication authentication) {
+        com.example.demo.entity.Admin admin = adminService.getAdminByEmail(authentication.getName());
+        return new com.example.demo.dto.AdminProfileResponse(
+                admin.getId(),
+                admin.getFullName(),
+                admin.getUser().getEmail());
+    }
 }

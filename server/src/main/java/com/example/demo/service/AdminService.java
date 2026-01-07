@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.AppointmentResponse;
+import com.example.demo.repository.AdminRepository;
 import com.example.demo.repository.AppointmentRepository;
 import com.example.demo.repository.DoctorRepository;
 import com.example.demo.repository.PatientRepository;
@@ -18,6 +19,7 @@ public class AdminService {
     private final PatientRepository patientRepo;
     private final DoctorRepository doctorRepo;
     private final UserRepository userRepo;
+    private final AdminRepository adminRepo;
     private final AppointmentRepository appointmentRepo;
 
     public List<com.example.demo.dto.PatientResponse> getAllPatients() {
@@ -115,5 +117,10 @@ public class AdminService {
         double totalRevenue = paidAppointments.size() * 100.0;
 
         return new com.example.demo.dto.RevenueResponse(totalRevenue, revenueByDate);
+    }
+
+    public com.example.demo.entity.Admin getAdminByEmail(String email) {
+        com.example.demo.entity.User user = userRepo.findByEmail(email).orElseThrow();
+        return adminRepo.findByUser(user).orElseThrow();
     }
 }

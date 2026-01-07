@@ -58,8 +58,11 @@ export default function Sidebar({ role }) {
       ref={sidebarRef}
       className="w-64 bg-white dark:bg-dark-800 border-r border-gray-200 dark:border-gray-800 hidden md:flex flex-col h-screen sticky top-0"
     >
-      <div className="h-16 flex items-center px-6 border-b border-gray-200 dark:border-gray-800">
-        <Activity className="w-6 h-6 text-primary-500 mr-2" />
+      <div
+        onClick={() => navigate("/login")}
+        className="h-16 flex items-center px-6 border-b border-gray-200 dark:border-gray-800 cursor-pointer hover:bg-gray-50 dark:hover:bg-dark-700 transition-colors group"
+      >
+        <Activity className="w-6 h-6 text-primary-500 mr-2 group-hover:scale-110 transition-transform" />
         <span className="font-bold text-lg text-gray-900 dark:text-white">
           HealthAxis
         </span>

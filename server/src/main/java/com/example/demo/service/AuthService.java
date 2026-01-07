@@ -64,6 +64,15 @@ public class AuthService {
 
                 User user = userRepo.findByEmail(req.getEmail()).orElseThrow();
 
+                String fullName = "User";
+                if (user.getRole() == User.Role.ADMIN) {
+                        fullName = adminRepo.findByUser(user).map(Admin::getFullName).orElse("Admin");
+                } else if (user.getRole() == User.Role.DOCTOR) {
+                        fullName = doctorRepo.findByUser(user).map(Doctor::getFullName).orElse("Doctor");
+                } else if (user.getRole() == User.Role.PATIENT) {
+                        fullName = patientRepo.findByUser(user).map(Patient::getFullName).orElse("Patient");
+                }
+
                 String token = jwtUtil.generateToken(
                                 user.getEmail(),
                                 user.getRole().name());
@@ -71,7 +80,8 @@ public class AuthService {
                 return new AuthResponse(
                                 token,
                                 user.getEmail(),
-                                user.getRole().name());
+                                user.getRole().name(),
+                                fullName);
         }
 
         public void createDoctor(DoctorRequest req) {

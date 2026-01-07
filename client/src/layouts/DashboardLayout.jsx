@@ -4,12 +4,14 @@ import { useState, useRef, useEffect } from "react";
 
 import Sidebar from "../components/Sidebar";
 import { API_BASE_URL, fetchWithAuth } from "../api/config";
+import { useLoading } from "../context/LoadingContext";
 
 export default function DashboardLayout({ role }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isOnLeave, setIsOnLeave] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
+  const { setIsLoading } = useLoading();
 
   const token = localStorage.getItem("token");
   const storedRole = localStorage.getItem("role"); // ADMIN, DOCTOR, PATIENT from backend
@@ -68,6 +70,7 @@ export default function DashboardLayout({ role }) {
       const apiUrl = `${API_BASE_URL}/doctor/me`;
 
       try {
+        setIsLoading(true);
         const res = await fetchWithAuth(apiUrl);
 
         if (res.status === 403) {
@@ -96,8 +99,8 @@ export default function DashboardLayout({ role }) {
         method: "PUT",
       });
       setIsOnLeave(newStatus);
-    } catch (err) {
-      console.error("Failed to update leave status", err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -106,10 +109,52 @@ export default function DashboardLayout({ role }) {
     navigate("/login");
   };
 
-  const userEmail =
-    role === "Admin"
-      ? "admin@healthaxis.com"
-      : `${role.toLowerCase()}@healthaxis.com`;
+  const [profile, setProfile] = useState({
+    name: localStorage.getItem("userName") || role,
+    email:
+      localStorage.getItem("userEmail") ||
+      `${role.toLowerCase()}@healthaxis.com`,
+  });
+
+  // Fetch true profile data from backend
+  useEffect(() => {
+    if (!token) return;
+
+    const fetchProfile = async () => {
+      let endpoint = "";
+      if (role === "Admin") endpoint = "/admin/me";
+      else if (role === "Doctor") endpoint = "/doctor/me";
+      else if (role === "Patient") endpoint = "/patient/me";
+
+      if (!endpoint) return;
+
+      try {
+        setIsLoading(true);
+        const res = await fetchWithAuth(`${API_BASE_URL}${endpoint}`);
+        if (res.ok) {
+          const data = await res.json();
+          // Both DoctorStatsResponse and PatientProfileResponse have fullName or similar
+          const freshName = data.fullName || data.name || role;
+          const freshEmail = data.email || profile.email;
+
+          setProfile({ name: freshName, email: freshEmail });
+
+          // Sync localStorage for other components
+          localStorage.setItem("userName", freshName);
+          localStorage.setItem("userEmail", freshEmail);
+        }
+      } catch (err) {
+        console.error("Failed to fetch dashboard profile", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, [role, token]);
+
+  const userName = profile.name;
+  const userEmail = profile.email;
 
   return (
     <div className="min-h-screen flex bg-gray-50 dark:bg-dark-900 text-gray-900 dark:text-gray-100 transition-colors duration-300 font-sans">
@@ -125,44 +170,22 @@ export default function DashboardLayout({ role }) {
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               className="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 flex items-center justify-center font-bold text-sm hover:ring-2 hover:ring-primary-500 transition-all duration-200 focus:outline-none"
             >
-              {role ? role[0].toUpperCase() : "U"}
+              {userName ? userName[0].toUpperCase() : "U"}
             </button>
 
             {isDropdownOpen && (
               <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-dark-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 py-2 animate-in fade-in zoom-in duration-200">
                 <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-700 mb-2">
                   <p className="text-xs font-semibold text-gray-400 uppercase">
-                    {role}
+                    {role} Profile
                   </p>
                   <p className="text-sm font-bold text-gray-900 dark:text-white">
+                    {userName}
+                  </p>
+                  <p className="text-[10px] text-gray-400 truncate">
                     {userEmail}
                   </p>
                 </div>
-
-                {/* Doctor Leave Toggle */}
-                {role === "Doctor" && (
-                  <div
-                    className="px-4 py-2 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-dark-700 transition-colors cursor-pointer"
-                    onClick={() => updateLeaveStatus(!isOnLeave)}
-                  >
-                    <span className="text-sm text-gray-700 dark:text-gray-300">
-                      On Leave
-                    </span>
-                    <button
-                      className={`relative inline-flex h-5 w-9 rounded-full transition-colors duration-200 ${
-                        isOnLeave
-                          ? "bg-primary-600"
-                          : "bg-gray-200 dark:bg-dark-600"
-                      }`}
-                    >
-                      <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition ${
-                          isOnLeave ? "translate-x-4" : "translate-x-0"
-                        }`}
-                      />
-                    </button>
-                  </div>
-                )}
 
                 <button
                   onClick={() => {

@@ -43,6 +43,7 @@ public class Appointment {
     private String paymentStatus = "PENDING"; // PENDING, PAID
 
     public enum AppointmentStatus {
+        PENDING_PAYMENT,
         UPCOMING,
         CONFIRMED,
         COMPLETED,

@@ -24,53 +24,59 @@ import Register from "./pages/auth/Register";
 
 import LandingPage from "./pages/LandingPage";
 
+import { LoadingProvider } from "./context/LoadingContext";
+import GlobalLoader from "./components/GlobalLoader";
+
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Public Landing Page */}
-        <Route path="/" element={<LandingPage />} />
+    <LoadingProvider>
+      <GlobalLoader />
+      <BrowserRouter>
+        <Routes>
+          {/* Public Landing Page */}
+          <Route path="/" element={<LandingPage />} />
 
-        {/* Auth Routes */}
-        <Route element={<AuthLayout />}>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-        </Route>
+          {/* Auth Routes */}
+          <Route element={<AuthLayout />}>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+          </Route>
 
-        {/* Dashboard Routes (Protected in real app) */}
-        <Route path="/admin" element={<DashboardLayout role="Admin" />}>
-          <Route index element={<AdminDashboard />} />
-          <Route path="doctors" element={<Doctors />} />
-          <Route path="patients" element={<AdminPatients />} />
-          <Route path="appointments" element={<AdminAppointments />} />
-          <Route path="settings" element={<AdminSettings />} />
-          <Route path="add-user" element={<AddUser />} />
-          <Route path="recent-activity" element={<RecentActivity />} />
-          <Route path="recent-activity" element={<RecentActivity />} />
-          <Route path="reports" element={<AdminReports />} />
-          <Route path="reports" element={<AdminReports />} />
-        </Route>
+          {/* Dashboard Routes (Protected in real app) */}
+          <Route path="/admin" element={<DashboardLayout role="Admin" />}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="doctors" element={<Doctors />} />
+            <Route path="patients" element={<AdminPatients />} />
+            <Route path="appointments" element={<AdminAppointments />} />
+            <Route path="settings" element={<AdminSettings />} />
+            <Route path="add-user" element={<AddUser />} />
+            <Route path="recent-activity" element={<RecentActivity />} />
+            <Route path="reports" element={<AdminReports />} />
+            <Route path="reports" element={<AdminReports />} />
+            <Route path="reports" element={<AdminReports />} />
+          </Route>
 
-        <Route path="/doctor" element={<DashboardLayout role="Doctor" />}>
-          <Route index element={<DoctorDashboard />} />
-          <Route path="settings" element={<DoctorSettings />} />
-          <Route path="video-call/:id" element={<VideoCall />} />
-        </Route>
+          <Route path="/doctor" element={<DashboardLayout role="Doctor" />}>
+            <Route index element={<DoctorDashboard />} />
+            <Route path="settings" element={<DoctorSettings />} />
+            <Route path="video-call/:id" element={<VideoCall />} />
+          </Route>
 
-        <Route path="/patient" element={<DashboardLayout role="Patient" />}>
-          <Route index element={<PatientDashboard />} />
-          <Route path="appointments" element={<PatientAppointments />} />
-          <Route path="reports" element={<PatientReports />} />
-          <Route path="settings" element={<PatientSettings />} />
-          <Route path="video-call/:id" element={<VideoCall />} />
-        </Route>
+          <Route path="/patient" element={<DashboardLayout role="Patient" />}>
+            <Route index element={<PatientDashboard />} />
+            <Route path="appointments" element={<PatientAppointments />} />
+            <Route path="reports" element={<PatientReports />} />
+            <Route path="settings" element={<PatientSettings />} />
+            <Route path="video-call/:id" element={<VideoCall />} />
+          </Route>
 
-        {/* Catch all */}
-        <Route path="*" element={<Navigate to="/login" replace />} />
-        <Route path="/payment/success" element={<PaymentSuccess />} />
-        <Route path="/payment/cancel" element={<PaymentCancel />} />
-      </Routes>
-    </BrowserRouter>
+          {/* Catch all */}
+          <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route path="/payment/success" element={<PaymentSuccess />} />
+          <Route path="/payment/cancel" element={<PaymentCancel />} />
+        </Routes>
+      </BrowserRouter>
+    </LoadingProvider>
   );
 }
 

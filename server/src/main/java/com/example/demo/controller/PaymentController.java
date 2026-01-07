@@ -42,7 +42,8 @@ public class PaymentController {
                                 .setSuccessUrl(YOUR_DOMAIN
                                                 + "/payment/success?session_id={CHECKOUT_SESSION_ID}&appointment_id="
                                                 + paymentRequest.getAppointmentId())
-                                .setCancelUrl(YOUR_DOMAIN + "/payment/cancel")
+                                .setCancelUrl(YOUR_DOMAIN + "/payment/cancel?appointment_id="
+                                                + paymentRequest.getAppointmentId())
                                 .addLineItem(
                                                 SessionCreateParams.LineItem.builder()
                                                                 .setQuantity(1L)

@@ -58,7 +58,7 @@ public class AppointmentService {
                 appointment.setPatientName(patient.getFullName());
                 appointment.setDoctorName(doctor.getFullName());
                 appointment.setDateTime(req.getDateTime());
-                appointment.setStatus(Appointment.AppointmentStatus.UPCOMING);
+                appointment.setStatus(Appointment.AppointmentStatus.PENDING_PAYMENT);
 
                 appointmentRepo.save(appointment);
 
@@ -101,11 +101,24 @@ public class AppointmentService {
                 appointment.setStatus(Appointment.AppointmentStatus.CANCELED);
                 appointmentRepo.save(appointment);
 
-                // Update in Patient's list as well (since it's a reference, strictly speaking
-                // the object in DB is updated,
-                // but if we were holding a separate copy we'd need to update it.
                 // Since we use DBRef, fetching the patient again will show the updated status
                 // in the referenced object.
+        }
+
+        public void deletePendingAppointment(String id, String patientEmail) {
+                Appointment appointment = appointmentRepo.findById(id)
+                                .orElseThrow(() -> new RuntimeException("Appointment not found"));
+
+                // Verify ownership
+                if (!appointment.getPatient().getUser().getEmail().equals(patientEmail)) {
+                        throw new RuntimeException("Unauthorized");
+                }
+
+                if (appointment.getStatus() == Appointment.AppointmentStatus.PENDING_PAYMENT) {
+                        appointmentRepo.delete(appointment);
+                } else {
+                        throw new RuntimeException("Cannot delete confirmed appointment");
+                }
         }
 
         public java.util.List<com.example.demo.dto.AppointmentResponse> getDoctorAppointmentsToday(String doctorEmail) {

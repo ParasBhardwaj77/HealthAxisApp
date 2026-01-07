@@ -15,6 +15,7 @@ import StatCard from "../../components/StatCard";
 import { Button } from "../../components/ui/Button";
 import { API_ENDPOINTS, fetchWithAuth, API_BASE_URL } from "../../api/config";
 import { useEffect } from "react";
+import { useLoading } from "../../context/LoadingContext";
 
 const patientsData = [
   {
@@ -67,13 +68,16 @@ export default function DoctorDashboard() {
     totalPatients: 0,
     totalReports: 0,
   });
+  const [isOnLeave, setIsOnLeave] = useState(false);
   const [patients, setPatients] = useState([]);
   const [loadingPatients, setLoadingPatients] = useState(false);
+  const { setIsLoading } = useLoading();
   const navigate = useNavigate();
 
   const fetchAppointments = async (currentView) => {
     try {
       setLoading(true);
+      setIsLoading(true);
       const endpoint =
         currentView === "today"
           ? API_ENDPOINTS.DOCTOR.TODAY_APPOINTMENTS
@@ -93,9 +97,14 @@ export default function DoctorDashboard() {
             )
             .sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
         } else {
+          // Filter out unpaid/pending appointments
+          const confirmedApps = data.filter(
+            (app) => app.status.toUpperCase() !== "PENDING_PAYMENT"
+          );
+
           // Sort all appointments: future ones first (ascending), then past ones (descending)
           const now = new Date();
-          filteredData = data.sort((a, b) => {
+          filteredData = confirmedApps.sort((a, b) => {
             const dateA = new Date(a.dateTime);
             const dateB = new Date(b.dateTime);
 
@@ -113,6 +122,7 @@ export default function DoctorDashboard() {
       console.error("Fetch appointments error:", err);
     } finally {
       setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -151,6 +161,7 @@ export default function DoctorDashboard() {
             totalPatients: meData.patientCount,
             totalReports: meData.totalReports,
           });
+          setIsOnLeave(meData.onLeave);
         }
         await fetchAppointments(view);
       } catch (err) {
@@ -243,6 +254,26 @@ export default function DoctorDashboard() {
     document.body.removeChild(link);
   };
 
+  const handleToggleLeave = async () => {
+    try {
+      setIsLoading(true);
+      const newStatus = !isOnLeave;
+      const res = await fetchWithAuth(
+        `${API_BASE_URL}/doctor/leave?onLeave=${newStatus}`,
+        {
+          method: "PUT",
+        }
+      );
+      if (res.ok) {
+        setIsOnLeave(newStatus);
+      }
+    } catch (err) {
+      console.error("Failed to toggle leave status:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -253,6 +284,36 @@ export default function DoctorDashboard() {
           <p className="text-gray-500 dark:text-gray-400 text-sm">
             Have a nice day, {doctorInfo.name}
           </p>
+        </div>
+
+        {/* New "On Leave" Toggle Button */}
+        <div className="flex items-center gap-3 bg-white dark:bg-dark-800 p-2 px-4 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
+          <div className="flex flex-col">
+            <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">
+              Current Status
+            </span>
+            <span
+              className={`text-sm font-bold ${
+                isOnLeave ? "text-orange-500" : "text-green-500"
+              }`}
+            >
+              {isOnLeave ? "On Leave" : "Available"}
+            </span>
+          </div>
+          <button
+            onClick={handleToggleLeave}
+            className={`relative inline-flex h-7 w-12 items-center rounded-full transition-all duration-300 focus:outline-none ${
+              isOnLeave
+                ? "bg-orange-500 shadow-lg shadow-orange-200 dark:shadow-none"
+                : "bg-green-500 shadow-lg shadow-green-200 dark:shadow-none"
+            }`}
+          >
+            <span
+              className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform duration-300 ${
+                isOnLeave ? "translate-x-6" : "translate-x-1"
+              }`}
+            />
+          </button>
         </div>
       </div>
 

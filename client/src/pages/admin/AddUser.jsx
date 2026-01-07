@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useLoading } from "../../context/LoadingContext";
 import { Button } from "../../components/ui/Button";
 import { ChevronLeft, User, Mail, Lock, Users, Calendar } from "lucide-react";
 import { API_BASE_URL, API_ENDPOINTS, fetchWithAuth } from "../../api/config";
@@ -8,7 +9,7 @@ export default function AddUser() {
   const navigate = useNavigate();
   const location = useLocation();
   const [role, setRole] = useState(location.state?.role || "Patient");
-  const [isLoading, setIsLoading] = useState(false);
+  const { setIsLoading, isLoading: globalLoading } = useLoading();
 
   const [form, setForm] = useState({
     fullName: "",
@@ -241,8 +242,8 @@ export default function AddUser() {
             >
               Cancel
             </Button>
-            <Button type="submit" className="flex-1" disabled={isLoading}>
-              {isLoading ? "Creating User..." : "Create Account"}
+            <Button type="submit" className="flex-1" disabled={globalLoading}>
+              {globalLoading ? "Creating User..." : "Create Account"}
             </Button>
           </div>
         </form>

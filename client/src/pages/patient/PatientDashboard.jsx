@@ -15,6 +15,8 @@ import ReportsList from "./ReportsList";
 import AppointmentsList from "./AppointmentsList";
 import { API_ENDPOINTS, fetchWithAuth } from "../../api/config";
 import { useState, useEffect } from "react";
+import { useLoading } from "../../context/LoadingContext";
+import Chatbox from "../../components/Chatbox";
 
 export default function PatientDashboard() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -28,11 +30,13 @@ export default function PatientDashboard() {
 
   const [reports, setReports] = useState([]);
   const [loadingReports, setLoadingReports] = useState(false);
+  const { setIsLoading } = useLoading();
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
+        setIsLoading(true);
         const [appointmentsRes, reportsRes, profileRes] = await Promise.all([
           fetchWithAuth(API_ENDPOINTS.PATIENT.MY_APPOINTMENTS),
           fetchWithAuth(API_ENDPOINTS.REPORTS.MY),
@@ -61,6 +65,7 @@ export default function PatientDashboard() {
         setError("Error loading dashboard data");
       } finally {
         setLoading(false);
+        setIsLoading(false);
       }
     };
 
@@ -150,12 +155,14 @@ export default function PatientDashboard() {
           label={getUpcomingVisitInfo().label}
           icon={Calendar}
           color="primary"
+          onClick={() => navigate("/patient/appointments")}
         />
         <StatCard
           title="Total Reports"
           value={reports.length.toString()}
           icon={FileText}
           color="orange"
+          onClick={() => navigate("/patient/reports")}
         />
       </div>
 
@@ -208,11 +215,12 @@ export default function PatientDashboard() {
                       }`}
                     ></div>
                     <div
-                      className={`p-4 rounded-2xl border transition-all ${
+                      className={`p-4 rounded-2xl border transition-all cursor-pointer ${
                         index === 0
                           ? "bg-primary-50 dark:bg-primary-900/20 border-primary-100 dark:border-primary-900/30 shadow-sm"
                           : "bg-gray-50 dark:bg-dark-700 border-transparent hover:border-primary-200 dark:hover:border-primary-800"
                       }`}
+                      onClick={() => navigate("/patient/appointments")}
                     >
                       <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
                         <div className="flex-1">
@@ -226,9 +234,10 @@ export default function PatientDashboard() {
                             <Button
                               size="sm"
                               className="h-8 rounded-xl"
-                              onClick={() =>
-                                navigate(`/patient/video-call/${app.id}`)
-                              }
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/patient/video-call/${app.id}`);
+                              }}
                             >
                               <Video className="w-3.5 h-3.5 mr-2" />
                               Join Call
@@ -237,7 +246,10 @@ export default function PatientDashboard() {
                               variant="ghost"
                               size="sm"
                               className="h-8 rounded-xl text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
-                              onClick={() => navigate("/patient/appointments")}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate("/patient/appointments");
+                              }}
                             >
                               Cancel
                             </Button>
@@ -320,6 +332,7 @@ export default function PatientDashboard() {
           </div>
         </div>
       </div>
+      <Chatbox />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useLoading } from "../../context/LoadingContext";
 import Table from "../../components/Table";
 import { Button } from "../../components/ui/Button";
 import { UserPlus, Search } from "lucide-react";
@@ -10,6 +11,7 @@ export default function AdminPatients() {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { setIsLoading } = useLoading();
 
   useEffect(() => {
     fetchPatients();
@@ -17,6 +19,8 @@ export default function AdminPatients() {
 
   const fetchPatients = async () => {
     try {
+      setLoading(true);
+      setIsLoading(true);
       const response = await fetchWithAuth(API_ENDPOINTS.ADMIN.PATIENTS);
 
       if (!response.ok) {
@@ -39,6 +43,7 @@ export default function AdminPatients() {
       setError(err.message);
     } finally {
       setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -47,6 +52,7 @@ export default function AdminPatients() {
       window.confirm(`Are you sure you want to delete ${patientToDelete.name}?`)
     ) {
       try {
+        setIsLoading(true);
         const response = await fetchWithAuth(
           `${API_BASE_URL}/admin/patients/${patientToDelete.id}`,
           {
@@ -62,6 +68,8 @@ export default function AdminPatients() {
       } catch (error) {
         console.error("Error deleting patient:", error);
         alert("Error deleting patient");
+      } finally {
+        setIsLoading(false);
       }
     }
   };

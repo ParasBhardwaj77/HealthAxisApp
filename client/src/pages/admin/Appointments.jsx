@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import Table from "../../components/Table";
+import { useLoading } from "../../context/LoadingContext";
 import { Button } from "../../components/ui/Button";
 import { Calendar, Search, Clock, User, Filter } from "lucide-react";
 import { API_BASE_URL, API_ENDPOINTS, fetchWithAuth } from "../../api/config";
@@ -9,13 +10,11 @@ export default function AdminAppointments() {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  useEffect(() => {
-    fetchAppointments();
-  }, []);
-
+  const { setIsLoading } = useLoading();
   const fetchAppointments = async () => {
     try {
+      setLoading(true);
+      setIsLoading(true);
       const response = await fetchWithAuth(API_ENDPOINTS.ADMIN.APPOINTMENTS);
 
       if (!response.ok) {
@@ -44,8 +43,13 @@ export default function AdminAppointments() {
       setError(err.message);
     } finally {
       setLoading(false);
+      setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchAppointments();
+  }, []);
   const handleDelete = async (appointmentToDelete) => {
     if (
       window.confirm(
@@ -53,6 +57,7 @@ export default function AdminAppointments() {
       )
     ) {
       try {
+        setIsLoading(true);
         const response = await fetchWithAuth(
           `${API_BASE_URL}/admin/appointments/${appointmentToDelete.id}`,
           {
@@ -70,6 +75,8 @@ export default function AdminAppointments() {
       } catch (error) {
         console.error("Error deleting appointment:", error);
         alert("Error deleting appointment");
+      } finally {
+        setIsLoading(false);
       }
     }
   };

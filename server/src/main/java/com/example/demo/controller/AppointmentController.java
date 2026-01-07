@@ -21,14 +21,25 @@ public class AppointmentController {
     @PreAuthorize("hasRole('PATIENT')")
     @PostMapping
     public ResponseEntity<?> bookAppointment(@RequestBody AppointmentRequest req, Authentication auth) {
-        com.example.demo.entity.Appointment appt = appointmentService.bookAppointment(auth.getName(), req);
-        return ResponseEntity.ok(new com.example.demo.dto.AppointmentResponse(appt));
+        try {
+            com.example.demo.entity.Appointment appt = appointmentService.bookAppointment(auth.getName(), req);
+            return ResponseEntity.ok(new com.example.demo.dto.AppointmentResponse(appt));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PreAuthorize("hasRole('PATIENT')")
     @GetMapping("/my")
     public List<com.example.demo.dto.AppointmentResponse> getMyAppointments(Authentication auth) {
         return appointmentService.getPatientAppointments(auth.getName());
+    }
+
+    @PreAuthorize("hasRole('PATIENT')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deletePendingAppointment(@PathVariable String id, Authentication auth) {
+        appointmentService.deletePendingAppointment(id, auth.getName());
+        return ResponseEntity.ok("Appointment deleted successfully");
     }
 
     @PreAuthorize("hasRole('PATIENT')")

@@ -114,8 +114,9 @@ export default function AppointmentsList({ onBack }) {
   const filteredAppointments = appointments
     .filter(
       (app) =>
-        app.doctor.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        app.specialty.toLowerCase().includes(searchQuery.toLowerCase())
+        app.status !== "Pending_payment" &&
+        (app.doctor.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          app.specialty.toLowerCase().includes(searchQuery.toLowerCase()))
     )
     .sort(
       (a, b) => (statusOrder[a.status] || 99) - (statusOrder[b.status] || 99)

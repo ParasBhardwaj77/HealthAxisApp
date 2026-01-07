@@ -34,6 +34,9 @@ export const API_ENDPOINTS = {
         DOWNLOAD: (id) => `${API_BASE_URL}/reports/${id}/download`,
         DELETE: (id) => `${API_BASE_URL}/reports/${id}`,
     },
+    CHAT: {
+        ASK: `${API_BASE_URL}/chat/ask`,
+    },
 };
 
 export const fetchWithAuth = async (url, options = {}) => {

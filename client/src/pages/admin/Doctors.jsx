@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useLoading } from "../../context/LoadingContext";
 import Table from "../../components/Table";
 import { Button } from "../../components/ui/Button";
 import { UserPlus, Search } from "lucide-react";
@@ -11,6 +12,7 @@ export default function Doctors() {
   const [selectedSpecialty, setSelectedSpecialty] = useState("All Specialties");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { setIsLoading } = useLoading();
 
   useEffect(() => {
     fetchDoctors();
@@ -18,6 +20,8 @@ export default function Doctors() {
 
   const fetchDoctors = async () => {
     try {
+      setLoading(true);
+      setIsLoading(true);
       const response = await fetchWithAuth(`${API_ENDPOINTS.PATIENT.DOCTORS}`);
 
       if (!response.ok) {
@@ -42,6 +46,7 @@ export default function Doctors() {
       setError(err.message);
     } finally {
       setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -50,6 +55,7 @@ export default function Doctors() {
       window.confirm(`Are you sure you want to delete ${doctorToDelete.name}?`)
     ) {
       try {
+        setIsLoading(true);
         const response = await fetchWithAuth(
           `${API_BASE_URL}/admin/doctors/${doctorToDelete.id}`,
           {
@@ -61,12 +67,12 @@ export default function Doctors() {
           setDoctors(
             doctors.filter((doctor) => doctor.id !== doctorToDelete.id)
           );
-        } else {
-          alert("Failed to delete doctor");
         }
       } catch (error) {
         console.error("Error deleting doctor:", error);
         alert("Error deleting doctor");
+      } finally {
+        setIsLoading(false);
       }
     }
   };
