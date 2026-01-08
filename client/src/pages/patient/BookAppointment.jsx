@@ -28,7 +28,13 @@ export default function BookAppointment({ onBack }) {
 
         // Create a timeout promise to prevent hanging
         const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error("Request timed out")), 15000)
+          setTimeout(
+            () =>
+              reject(
+                new Error("Request timed out - Backend might be waking up")
+              ),
+            90000
+          )
         );
 
         // Race fetching against the timeout
