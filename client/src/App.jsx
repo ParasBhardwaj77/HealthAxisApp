@@ -68,10 +68,11 @@ function App() {
             <Route path="video-call/:id" element={<VideoCall />} />
           </Route>
 
-          {/* Catch all */}
-          <Route path="*" element={<Navigate to="/login" replace />} />
           <Route path="/payment/success" element={<PaymentSuccess />} />
           <Route path="/payment/cancel" element={<PaymentCancel />} />
+
+          {/* Catch all */}
+          <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>
     </LoadingProvider>
