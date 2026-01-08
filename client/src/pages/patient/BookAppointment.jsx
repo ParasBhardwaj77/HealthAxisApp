@@ -23,24 +23,34 @@ export default function BookAppointment({ onBack }) {
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
+        console.log("Fetching doctors...");
         const res = await fetchWithAuth(API_ENDPOINTS.PATIENT.DOCTORS);
+        console.log("Doctors response status:", res.status);
 
         if (!res.ok) {
-          throw new Error("Failed to fetch doctors");
+          throw new Error(`Failed to fetch doctors: ${res.status}`);
         }
 
-        const data = await res.json();
+        const text = await res.text();
+        console.log("Doctors response body length:", text.length);
+
+        const data = text ? JSON.parse(text) : [];
+
+        if (!Array.isArray(data)) {
+          throw new Error("Invalid data format received");
+        }
+
         const mappedDoctors = data.map((doc) => ({
           id: doc.id,
-          name: doc.fullName,
-          specialty: doc.specialization,
-          email: "", // Email not provided in DTO
-          availability: doc.status || "Available", // Fallback status
+          name: doc.fullName || "Unknown Doctor",
+          specialty: doc.specialization || "General",
+          email: doc.email || "",
+          availability: doc.status || "Available",
         }));
         setDoctors(mappedDoctors);
       } catch (err) {
-        console.error(err);
-        setError("Could not load doctors list.");
+        console.error("Error loading doctors:", err);
+        setError("Could not load doctors list. Please try again.");
       } finally {
         setLoading(false);
       }
