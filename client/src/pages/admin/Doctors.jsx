@@ -21,7 +21,6 @@ export default function Doctors() {
   const fetchDoctors = async () => {
     try {
       setLoading(true);
-      setIsLoading(true);
       const response = await fetchWithAuth(`${API_ENDPOINTS.PATIENT.DOCTORS}`);
 
       if (!response.ok) {
@@ -46,7 +45,6 @@ export default function Doctors() {
       setError(err.message);
     } finally {
       setLoading(false);
-      setIsLoading(false);
     }
   };
 

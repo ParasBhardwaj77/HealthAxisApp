@@ -11,7 +11,6 @@ export default function AdminPatients() {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { setIsLoading } = useLoading();
 
   useEffect(() => {
     fetchPatients();
@@ -20,7 +19,6 @@ export default function AdminPatients() {
   const fetchPatients = async () => {
     try {
       setLoading(true);
-      setIsLoading(true);
       const response = await fetchWithAuth(API_ENDPOINTS.ADMIN.PATIENTS);
 
       if (!response.ok) {
@@ -43,7 +41,6 @@ export default function AdminPatients() {
       setError(err.message);
     } finally {
       setLoading(false);
-      setIsLoading(false);
     }
   };
 

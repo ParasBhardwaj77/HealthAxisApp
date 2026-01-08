@@ -52,8 +52,6 @@ function App() {
             <Route path="add-user" element={<AddUser />} />
             <Route path="recent-activity" element={<RecentActivity />} />
             <Route path="reports" element={<AdminReports />} />
-            <Route path="reports" element={<AdminReports />} />
-            <Route path="reports" element={<AdminReports />} />
           </Route>
 
           <Route path="/doctor" element={<DashboardLayout role="Doctor" />}>

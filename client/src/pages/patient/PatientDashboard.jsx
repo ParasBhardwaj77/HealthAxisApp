@@ -15,7 +15,6 @@ import ReportsList from "./ReportsList";
 import AppointmentsList from "./AppointmentsList";
 import { API_ENDPOINTS, fetchWithAuth } from "../../api/config";
 import { useState, useEffect } from "react";
-import { useLoading } from "../../context/LoadingContext";
 import Chatbox from "../../components/Chatbox";
 
 export default function PatientDashboard() {
@@ -30,13 +29,11 @@ export default function PatientDashboard() {
 
   const [reports, setReports] = useState([]);
   const [loadingReports, setLoadingReports] = useState(false);
-  const { setIsLoading } = useLoading();
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
-        setIsLoading(true);
         const [appointmentsRes, reportsRes, profileRes] = await Promise.all([
           fetchWithAuth(API_ENDPOINTS.PATIENT.MY_APPOINTMENTS),
           fetchWithAuth(API_ENDPOINTS.REPORTS.MY),
@@ -65,7 +62,6 @@ export default function PatientDashboard() {
         setError("Error loading dashboard data");
       } finally {
         setLoading(false);
-        setIsLoading(false);
       }
     };
 

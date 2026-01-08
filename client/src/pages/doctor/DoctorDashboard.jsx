@@ -77,7 +77,6 @@ export default function DoctorDashboard() {
   const fetchAppointments = async (currentView) => {
     try {
       setLoading(true);
-      setIsLoading(true);
       const endpoint =
         currentView === "today"
           ? API_ENDPOINTS.DOCTOR.TODAY_APPOINTMENTS
@@ -122,7 +121,6 @@ export default function DoctorDashboard() {
       console.error("Fetch appointments error:", err);
     } finally {
       setLoading(false);
-      setIsLoading(false);
     }
   };
 

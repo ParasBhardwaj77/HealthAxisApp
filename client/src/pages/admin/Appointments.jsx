@@ -14,7 +14,6 @@ export default function AdminAppointments() {
   const fetchAppointments = async () => {
     try {
       setLoading(true);
-      setIsLoading(true);
       const response = await fetchWithAuth(API_ENDPOINTS.ADMIN.APPOINTMENTS);
 
       if (!response.ok) {
@@ -43,7 +42,6 @@ export default function AdminAppointments() {
       setError(err.message);
     } finally {
       setLoading(false);
-      setIsLoading(false);
     }
   };
 

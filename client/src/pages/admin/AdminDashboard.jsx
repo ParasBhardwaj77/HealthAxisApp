@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { useLoading } from "../../context/LoadingContext";
-import { Users, UserPlus, Calendar, DollarSign, Activity } from "lucide-react";
+import { Users, UserPlus, Calendar, Activity } from "lucide-react";
 import StatCard from "../../components/StatCard";
 import { Button } from "../../components/ui/Button";
 import { Link } from "react-router-dom";
@@ -16,13 +15,11 @@ export default function AdminDashboard() {
   });
   const [recentActivities, setRecentActivities] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { setIsLoading } = useLoading();
 
   useEffect(() => {
     const fetchAllStats = async () => {
       try {
         setLoading(true);
-        setIsLoading(true);
         // Fetching all stats including activities
         const [patientsRes, doctorsRes, appointmentsRes, activitiesRes] =
           await Promise.all([
@@ -55,7 +52,6 @@ export default function AdminDashboard() {
         console.error("Error fetching dashboard stats:", err);
       } finally {
         setLoading(false);
-        setIsLoading(false);
       }
     };
 
