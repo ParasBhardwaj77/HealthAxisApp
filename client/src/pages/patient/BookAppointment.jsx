@@ -22,9 +22,21 @@ export default function BookAppointment({ onBack }) {
 
   useEffect(() => {
     const fetchDoctors = async () => {
+      let isMounted = true;
       try {
         console.log("Fetching doctors...");
-        const res = await fetchWithAuth(API_ENDPOINTS.PATIENT.DOCTORS);
+
+        // Create a timeout promise to prevent hanging
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("Request timed out")), 15000)
+        );
+
+        // Race fetching against the timeout
+        const res = await Promise.race([
+          fetchWithAuth(API_ENDPOINTS.PATIENT.DOCTORS),
+          timeoutPromise,
+        ]);
+
         console.log("Doctors response status:", res.status);
 
         if (!res.ok) {
@@ -40,20 +52,29 @@ export default function BookAppointment({ onBack }) {
           throw new Error("Invalid data format received");
         }
 
-        const mappedDoctors = data.map((doc) => ({
-          id: doc.id,
-          name: doc.fullName || "Unknown Doctor",
-          specialty: doc.specialization || "General",
-          email: doc.email || "",
-          availability: doc.status || "Available",
-        }));
-        setDoctors(mappedDoctors);
+        if (isMounted) {
+          const mappedDoctors = data.map((doc) => ({
+            id: doc.id,
+            name: doc.fullName || "Unknown Doctor",
+            specialty: doc.specialization || "General",
+            email: doc.email || "",
+            availability: doc.status || "Available",
+          }));
+          setDoctors(mappedDoctors);
+        }
       } catch (err) {
-        console.error("Error loading doctors:", err);
-        setError("Could not load doctors list. Please try again.");
+        if (isMounted) {
+          console.error("Error loading doctors:", err);
+          setError(`Could not load doctors list: ${err.message}`);
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
+      return () => {
+        isMounted = false;
+      };
     };
 
     fetchDoctors();
