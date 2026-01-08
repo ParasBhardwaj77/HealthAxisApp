@@ -29,6 +29,8 @@ public class SecurityConfig {
                                 .authorizeHttpRequests(auth -> auth
                                                 .requestMatchers("/api/auth/**").permitAll()
                                                 .requestMatchers("/api/doctor/**").permitAll()
+                                                .requestMatchers("/api/payment/**").permitAll() // Allow payment
+                                                                                                // callbacks
                                                 .requestMatchers("/api/appointments/**").authenticated()
                                                 .anyRequest().authenticated())
                                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
