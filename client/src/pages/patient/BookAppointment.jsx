@@ -26,22 +26,7 @@ export default function BookAppointment({ onBack }) {
       try {
         console.log("Fetching doctors...");
 
-        // Create a timeout promise to prevent hanging
-        const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(
-            () =>
-              reject(
-                new Error("Request timed out - Backend might be waking up")
-              ),
-            90000
-          )
-        );
-
-        // Race fetching against the timeout
-        const res = await Promise.race([
-          fetchWithAuth(API_ENDPOINTS.PATIENT.DOCTORS),
-          timeoutPromise,
-        ]);
+        const res = await fetchWithAuth(API_ENDPOINTS.PATIENT.DOCTORS);
 
         console.log("Doctors response status:", res.status);
 
