@@ -40,12 +40,26 @@ public class DocService {
         }
 
         public java.util.List<com.example.demo.dto.DoctorResponse> getAllDoctors() {
-                return doctorRepo.findAll().stream()
+                // Fetch all doctors
+                java.util.List<Doctor> allDoctors = doctorRepo.findAll();
+
+                // Fetch ALL appointments once (instead of per-doctor)
+                java.util.List<com.example.demo.entity.Appointment> allAppointments = appointmentRepo.findAll();
+
+                // Build a map: doctorId -> unique patient count
+                java.util.Map<String, Long> doctorPatientCountMap = allAppointments.stream()
+                                .collect(java.util.stream.Collectors.groupingBy(
+                                                app -> app.getDoctor().getId(),
+                                                java.util.stream.Collectors.mapping(
+                                                                app -> app.getPatient().getId(),
+                                                                java.util.stream.Collectors.collectingAndThen(
+                                                                                java.util.stream.Collectors.toSet(),
+                                                                                java.util.Set::size))));
+
+                // Map doctors to responses using the pre-computed counts
+                return allDoctors.stream()
                                 .map(doc -> {
-                                        long patientCount = appointmentRepo.findByDoctor(doc).stream()
-                                                        .map(app -> app.getPatient().getId())
-                                                        .distinct()
-                                                        .count();
+                                        long patientCount = doctorPatientCountMap.getOrDefault(doc.getId(), 0L);
 
                                         return new com.example.demo.dto.DoctorResponse(
                                                         doc.getId(),
