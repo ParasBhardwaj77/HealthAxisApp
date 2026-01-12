@@ -17,7 +17,8 @@ public class CorsConfig {
         config.setAllowedOrigins(
                 List.of("http://localhost:5173", "http://localhost:5174",
                         "https://health-axis-app.vercel.app",
-                        "https://health-axis-app.vercel.app/"));
+                        "https://health-axis-app.vercel.app/",
+                        "https://exquisite-balance-production-592a.up.railway.app"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 
         // Explicitly list critical headers for authentication
