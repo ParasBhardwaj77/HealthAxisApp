@@ -13,11 +13,19 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
+        // Allow both with and without trailing slash
         config.setAllowedOrigins(
-                List.of("http://localhost:5173", "http://localhost:5174", "https://health-axis-app.vercel.app"));
+                List.of("http://localhost:5173", "http://localhost:5174",
+                        "https://health-axis-app.vercel.app",
+                        "https://health-axis-app.vercel.app/"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("*"));
+
+        // Explicitly list critical headers for authentication
+        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"));
         config.setAllowCredentials(true);
+
+        // Expose Authorization header in responses
+        config.setExposedHeaders(List.of("Authorization"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
