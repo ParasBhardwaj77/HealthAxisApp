@@ -1,4 +1,5 @@
 import { X, Check, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Button } from '../../components/ui/Button';
 
 export default function SaaSFeatures() {
@@ -47,9 +48,11 @@ export default function SaaSFeatures() {
                     </li>
                 ))}
             </ul>
-            <Button variant="secondary" className="w-full bg-white text-primary-700 hover:bg-gray-50 border-none">
-                Switch to Modern Healthcare <ArrowRight className="ml-2 w-4 h-4" />
-            </Button>
+            <Link to="/login">
+                <Button variant="secondary" className="w-full bg-white text-primary-700 hover:bg-gray-50 border-none">
+                    Switch to Modern Healthcare <ArrowRight className="ml-2 w-4 h-4" />
+                </Button>
+            </Link>
           </div>
         </div>
       </div>

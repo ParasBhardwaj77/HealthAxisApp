@@ -38,7 +38,7 @@ export default function Features() {
     <section id="features" className="py-24 bg-gray-50 dark:bg-dark-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <span className="text-primary-600 dark:text-primary-400 font-semibold tracking-wider uppercase text-sm">Everything You Need</span>
+
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mt-2 mb-4">
             A Complete Operating System for Healthcare
           </h2>
