@@ -6,6 +6,7 @@ import RoleTabs from '../components/landing/RoleTabs';
 import Telemedicine from '../components/landing/Telemedicine';
 import Workflow from '../components/landing/Workflow';
 import TechStack from '../components/landing/TechStack';
+import Developers from '../components/landing/Developers';
 import Footer from '../components/landing/Footer';
 
 export default function LandingPage() {
@@ -19,6 +20,7 @@ export default function LandingPage() {
       <Telemedicine />
       <Workflow />
       <TechStack />
+      <Developers />
       <Footer />
     </div>
   );

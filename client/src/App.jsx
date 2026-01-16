@@ -21,25 +21,51 @@ import DoctorSettings from "./pages/doctor/Settings";
 import PatientSettings from "./pages/patient/Settings";
 import VideoCall from "./pages/doctor/VideoCall";
 import Register from "./pages/auth/Register";
+import ForgotPassword from "./pages/auth/ForgotPassword";
 
 import LandingPage from "./pages/LandingPage";
+import FeaturesPage from "./pages/FeaturesPage";
+import PricingPage from "./pages/PricingPage";
+import TelemedicinePage from "./pages/TelemedicinePage";
+import SuccessStoriesPage from "./pages/SuccessStoriesPage";
+import AboutUsPage from "./pages/AboutUsPage";
+import CareersPage from "./pages/CareersPage";
+import BlogPage from "./pages/BlogPage";
+import ContactPage from "./pages/ContactPage";
+import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
+import TermsOfServicePage from "./pages/TermsOfServicePage";
 
 import { LoadingProvider } from "./context/LoadingContext";
 import GlobalLoader from "./components/GlobalLoader";
+import ScrollToTop from "./components/ScrollToTop";
 
 function App() {
   return (
     <LoadingProvider>
       <GlobalLoader />
       <BrowserRouter>
+        <ScrollToTop />
         <Routes>
           {/* Public Landing Page */}
           <Route path="/" element={<LandingPage />} />
+
+          {/* Public Pages */}
+          <Route path="/features" element={<FeaturesPage />} />
+          <Route path="/pricing" element={<PricingPage />} />
+          <Route path="/telemedicine" element={<TelemedicinePage />} />
+          <Route path="/success-stories" element={<SuccessStoriesPage />} />
+          <Route path="/about" element={<AboutUsPage />} />
+          <Route path="/careers" element={<CareersPage />} />
+          <Route path="/blog" element={<BlogPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/privacy" element={<PrivacyPolicyPage />} />
+          <Route path="/terms" element={<TermsOfServicePage />} />
 
           {/* Auth Routes */}
           <Route element={<AuthLayout />}>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
           </Route>
 
           {/* Dashboard Routes (Protected in real app) */}

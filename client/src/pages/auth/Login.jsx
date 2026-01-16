@@ -75,9 +75,17 @@ export default function Login() {
 
         {/* Password */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Password
-          </label>
+          <div className="flex items-center justify-between mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Password
+            </label>
+            <Link
+              to="/forgot-password"
+              className="text-sm text-primary-600 dark:text-primary-400 hover:underline"
+            >
+              Forgot password?
+            </Link>
+          </div>
           <input
             type="password"
             autoComplete="current-password"

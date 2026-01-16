@@ -3,10 +3,11 @@ import { Code2, Database, ShieldCheck, Globe, Server, Lock } from 'lucide-react'
 const technologies = [
   { icon: Code2, name: 'React', desc: 'Modern UI Library' },
   { icon: Globe, name: 'Tailwind CSS', desc: 'Utility-First Styling' },
-  { icon: Server, name: 'Node.js', desc: 'Backend Runtime' },
+  { icon: Server, name: 'Spring Boot', desc: 'Backend Runtime' },
   { icon: Database, name: 'PostgreSQL', desc: 'Relational Database' },
   { icon: ShieldCheck, name: 'JWT Auth', desc: 'Secure Access' },
   { icon: Lock, name: 'WebRTC', desc: 'Encrypted Video' },
+  
 ];
 
 export default function TechStack() {

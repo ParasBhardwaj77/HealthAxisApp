@@ -45,22 +45,43 @@ export default function Telemedicine() {
             <div className="relative">
                 <div className="bg-gray-800 rounded-3xl overflow-hidden shadow-2xl border border-gray-700 aspect-video relative group">
                     {/* Simulated Doctor Feed */}
-                    <div className="absolute inset-0 bg-gray-700 flex items-center justify-center">
-                        <UserPlaceholder className="w-32 h-32 text-gray-600 opacity-50" />
-                        <span className="absolute bottom-6 left-6 bg-black/60 px-3 py-1 rounded-lg text-sm font-medium backdrop-blur-sm">Dr. Sarah Wilson</span>
+                    <div className="absolute inset-0 bg-gray-700 overflow-hidden">
+                        <img 
+                            src="https://img.freepik.com/free-photo/pov-african-american-specialist-doctor-sitting-desk-hospital-office-explaining-healthcare-treatment-remote-patient-online-videocall-meeting-conference-telehealth-concept_482257-29744.jpg?semt=ais_hybrid&w=740&q=80" 
+                            alt="Doctor" 
+                            className="w-full h-full object-cover"
+                        />
+                        {/* Video call overlay effects */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                        <span className="absolute bottom-6 left-6 bg-black/70 px-4 py-2 rounded-lg text-sm font-semibold backdrop-blur-sm text-white flex items-center gap-2">
+                            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                            Dr. Sarah Wilson
+                        </span>
                     </div>
                     
                     {/* Simulated Patient PIP */}
-                    <div className="absolute top-4 right-4 w-32 h-24 bg-gray-900 rounded-xl shadow-lg border border-gray-600 flex items-center justify-center">
-                         <div className="w-8 h-8 rounded-full bg-gray-700"></div>
+                    <div className="absolute top-4 right-4 w-36 h-28 bg-gray-900 rounded-xl shadow-2xl border-2 border-white/20 overflow-hidden">
+                        <img 
+                            src="https://www.shutterstock.com/image-photo/head-shot-portrait-beautiful-indian-260nw-2592061437.jpg" 
+                            alt="Patient" 
+                            className="w-full h-full object-cover"
+                        />
+                        {/* PIP overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+                        <div className="absolute top-2 right-2 w-2 h-2 bg-green-400 rounded-full"></div>
+                    </div>
+
+                    {/* Connection Status */}
+                    <div className="absolute top-4 left-4 bg-black/50 backdrop-blur-sm px-3 py-1.5 rounded-lg text-xs text-white/90 font-medium">
+                        HD • Secure
                     </div>
 
                     {/* Controls */}
-                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-4 bg-gray-900/80 backdrop-blur-md px-6 py-3 rounded-full border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-2 group-hover:translate-y-0">
-                        <button className="p-3 rounded-full bg-gray-700 hover:bg-gray-600 transition-colors"><Mic className="w-5 h-5" /></button>
-                        <button className="p-3 rounded-full bg-gray-700 hover:bg-gray-600 transition-colors"><Video className="w-5 h-5" /></button>
-                        <button className="p-3 rounded-full bg-red-500 hover:bg-red-600 transition-colors shadow-lg shadow-red-500/30"><PhoneOff className="w-5 h-5 fill-current" /></button>
-                        <button className="p-3 rounded-full bg-gray-700 hover:bg-gray-600 transition-colors"><MessageSquare className="w-5 h-5" /></button>
+                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-4 bg-gray-900/90 backdrop-blur-md px-6 py-3 rounded-full border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-2 group-hover:translate-y-0">
+                        <button className="p-3 rounded-full bg-gray-700 hover:bg-gray-600 transition-colors text-white"><Mic className="w-5 h-5" /></button>
+                        <button className="p-3 rounded-full bg-gray-700 hover:bg-gray-600 transition-colors text-white"><Video className="w-5 h-5" /></button>
+                        <button className="p-3 rounded-full bg-red-500 hover:bg-red-600 transition-colors shadow-lg shadow-red-500/30 text-white"><PhoneOff className="w-5 h-5 fill-current" /></button>
+                        <button className="p-3 rounded-full bg-gray-700 hover:bg-gray-600 transition-colors text-white"><MessageSquare className="w-5 h-5" /></button>
                     </div>
                 </div>
             </div>
@@ -73,11 +94,5 @@ export default function Telemedicine() {
 function ShieldIcon(props) {
     return (
         <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-    )
-}
-
-function UserPlaceholder(props) {
-    return (
-        <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
     )
 }
