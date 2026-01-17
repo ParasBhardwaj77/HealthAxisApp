@@ -1,8 +1,15 @@
-
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-brightgreen)
+![MongoDB](https://img.shields.io/badge/Database-MongoDB-green)
+![Stripe](https://img.shields.io/badge/Payments-Stripe-blueviolet)
+![JWT](https://img.shields.io/badge/Auth-JWT-orange)
+![React](https://img.shields.io/badge/Frontend-React-blue)
+![License](https://img.shields.io/badge/License-MIT-yellow)
+![Build](https://img.shields.io/badge/Build-Passing-success)
 
 # 🩺 HealthAxisApp
 
-**HealthAxisApp** is a full-stack healthcare web application built to streamline patient-centric functionalities such as user authentication, health data management, and appointment workflows via a modern client-server architecture. The project contains separate frontend and backend modules for scalable development and deployment. ([GitHub][1])
+**HealthAxisApp** is a full-stack healthcare web application designed to streamline patient-centric workflows such as secure authentication, health data management, appointment handling, online consultations, and payments using a modern client–server architecture.
+The project is structured with separate frontend and backend modules to ensure scalability, maintainability, and clean separation of concerns.
 
 ---
 
@@ -24,88 +31,97 @@
 
 ## 🚀 Project Overview
 
-HealthAxisApp is designed to provide users with an intuitive healthcare platform where they can:
+HealthAxisApp provides an intuitive digital healthcare platform where users can:
 
-* Register and log in securely
-* Manage personal health information
-* View appointments or healthcare records
-* Interact with backend APIs for medical data operations
+* Register and authenticate securely
+* Manage personal and medical information
+* Book and manage appointments
+* Attend online video consultations
+* Make secure online payments
+* Receive email notifications for important events
 
-The project follows a **client-server architecture** with:
+The project follows a **client–server architecture**:
 
-* **client** — Frontend application
-* **server** — Backend REST API
-* Config files and editor settings in `.vscode` folder ([GitHub][1])
+* **client** — Frontend web application
+* **server** — Spring Boot REST API
+* `.vscode` — Development and editor configurations
 
 ---
 
 ## ✨ Features
 
-> *(Update these feature bullets based on exact functionality in your app)*
-
-* ✅ User registration & authentication
-* 🗂 Profile & medical data management
-* 📅 Appointment scheduling & calendar view
-* 🔐 Secure API access with token handling
-* 📊 Dashboard to visualize health metrics
+* ✅ Secure user authentication & authorization
+* 🗂 Patient profile and medical data management
+* 📅 Appointment booking and scheduling
+* 🎥 Online video consultation using **Flying Sauce Video Call API**
+* 💳 Payment integration using **Stripe**
+* 📧 Automated email notifications (appointment confirmation, reminders, etc.)
+* 🔐 Secure API access using JWT & role-based access control
+* 📊 Scalable backend architecture with service-based design
 
 ---
 
 ## 🛠️ Technology Stack
 
-| Layer              | Technology                         |
-| ------------------ | ---------------------------------- |
-| Frontend           | JavaScript (likely React.js)       |
-| Backend            | JavaScript (Node.js/Express)*      |
-| Additional Backend | Java (microservices or utilities)* |
-| Database           | *(e.g., MongoDB / PostgreSQL)*     |
-| Environment        | Node, npm/yarn                     |
-
-> *Based on the repo language breakdown: ~78% JavaScript, ~21% Java.* ([GitHub][1])
+| Layer          | Technology                      |
+| -------------- | ------------------------------- |
+| Frontend       | JavaScript (React.js)           |
+| Backend        | **Spring Boot (Java)**          |
+| Database       | **MongoDB**                     |
+| Authentication | JWT, Spring Security            |
+| Payments       | **Stripe API**                  |
+| Video Calls    | **Flying Sauce Video Call API** |
+| Notifications  | Java Mail Sender                |
+| Build Tools    | Maven                           |
+| Environment    | Node.js, npm, Java JDK          |
 
 ---
 
 ## 📦 Setup & Installation
 
-Below are generic steps — make sure to adapt them based on your actual code.
-
 ### 🧠 Prerequisites
 
-Install the following before starting:
+Make sure you have the following installed:
 
-* Node.js (>=14.x)
+* Java JDK 17+
+* Maven
+* Node.js (>= 14.x)
 * npm or yarn
-* Java & related build tools (if backend uses Java modules)
+* MongoDB (local or cloud)
 
 ---
 
-### ⚙️ Backend Setup
+### ⚙️ Backend Setup (Spring Boot)
 
-1. Navigate to the server folder:
+1. Navigate to the backend folder:
 
    ```bash
    cd server
    ```
 
-2. Install dependencies:
+2. Configure application properties:
+
+   ```properties
+   spring.data.mongodb.uri=mongodb://localhost:27017/healthaxis
+   server.port=8080
+
+   jwt.secret=your_jwt_secret
+   stripe.api.key=your_stripe_secret_key
+   mail.username=your_email
+   mail.password=your_email_password
+   ```
+
+3. Run the Spring Boot application:
 
    ```bash
-   npm install
+   mvn spring-boot:run
    ```
 
-3. Setup environment variables:
+Backend will start at:
 
-   ```env
-   PORT=5000
-   DATABASE_URL=<your_database_connection_string>
-   JWT_SECRET=<your_jwt_secret>
-   ```
-
-4. Run the backend server:
-
-   ```bash
-   npm start
-   ```
+```
+http://localhost:8080
+```
 
 ---
 
@@ -123,13 +139,13 @@ Install the following before starting:
    npm install
    ```
 
-3. Start the frontend app (e.g., React/Vue/...):
+3. Start the frontend application:
 
    ```bash
    npm start
    ```
 
-4. Open your browser and visit:
+4. Open your browser:
 
    ```
    http://localhost:3000
@@ -139,58 +155,56 @@ Install the following before starting:
 
 ## 🔧 Environment Variables
 
-Create a `.env` file in both `client` and `server` if needed, e.g.:
-
-**Backend (.env)**
+### Backend (`application.properties` or `.env`)
 
 ```
-PORT=5000
-DB_URL=mongodb://localhost:27017/healthaxis
-JWT_SECRET=your_jwt_secret_here
+MONGODB_URI=mongodb://localhost:27017/healthaxis
+JWT_SECRET=your_jwt_secret
+STRIPE_SECRET_KEY=your_stripe_key
+MAIL_USERNAME=example@gmail.com
+MAIL_PASSWORD=your_password
 ```
 
-**Frontend (.env)**
+### Frontend (`.env`)
 
 ```
-REACT_APP_API_URL=http://localhost:5000/api
+REACT_APP_API_URL=http://localhost:8080/api
+REACT_APP_STRIPE_PUBLIC_KEY=your_stripe_public_key
 ```
 
 ---
 
 ## 👥 Collaborators
 
-🏅 Main Contributors
+### 🏅 Main Contributors
 
-Paras Bhardwaj — Full-Stack Developer
-Lead developer who worked on application architecture, frontend–backend integration, and core feature implementation.
-🔗 GitHub: https://github.com/ParasBhardwaj77
+**Paras Bhardwaj** — *Full-Stack Developer*
+Lead developer responsible for system architecture, frontend–backend integration, and core feature development.
+🔗 GitHub: [https://github.com/ParasBhardwaj77](https://github.com/ParasBhardwaj77)
 
-Tejasvi Vermani — Co-Developer
-Contributed to backend logic, feature development, API handling, Microservices, Testing and overall project enhancements.
-🔗 GitHub: https://github.com/tejasvi001
+**Tejasvi Vermani** — *Co-Developer*
+Contributed to backend development, microservices, API integrations, testing, and overall system enhancements.
+🔗 GitHub: [https://github.com/tejasvi001](https://github.com/tejasvi001)
 
 ---
 
 ## 📌 Contributing
 
-We welcome contributions! Follow these steps:
+Contributions are welcome!
 
 1. Fork the repository
-2. Clone fork locally
-3. Create a feature branch
+2. Clone your fork
+3. Create a new branch:
 
    ```bash
    git checkout -b feat/your-feature
    ```
-4. Commit changes
+4. Commit your changes:
 
    ```bash
    git commit -m "Add feature"
    ```
-5. Push to your fork and open a PR
+5. Push and open a Pull Request
 
 ---
-
-
-
 
