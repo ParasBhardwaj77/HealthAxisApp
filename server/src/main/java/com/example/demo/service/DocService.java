@@ -54,7 +54,7 @@ public class DocService {
                                                                 app -> app.getPatient().getId(),
                                                                 java.util.stream.Collectors.collectingAndThen(
                                                                                 java.util.stream.Collectors.toSet(),
-                                                                                java.util.Set::size))));
+                                                                                set -> (long) set.size()))));
 
                 // Map doctors to responses using the pre-computed counts
                 return allDoctors.stream()
