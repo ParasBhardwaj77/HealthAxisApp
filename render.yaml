@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: healthaxis-backend
+    env: docker
+    plan: free
+    region: singapore
+    branch: main
+    repo: https://github.com/ParasBhardwaj77/HealthAxisApp # Auto-detected usually, but good to be explicit
+    rootDir: server
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRATION
+        value: 86400000
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: FRONTEND_URL
+        value: https://health-axis-app.vercel.app # Placeholder, user needs to update
