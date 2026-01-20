@@ -24,12 +24,13 @@ public class AuthService {
         private final ActivityService activityService;
 
         public void registerAdmin(AuthRequest req) {
-                if (!req.getEmail().endsWith("@admin.com"))
+                String email = req.getEmail().toLowerCase();
+                if (!email.endsWith("@admin.com"))
                         throw new RuntimeException("Only admin emails allowed");
 
                 User user = new User(
                                 null,
-                                req.getEmail(),
+                                email,
                                 encoder.encode(req.getPassword()),
                                 User.Role.ADMIN,
                                 true);
@@ -39,19 +40,20 @@ public class AuthService {
         }
 
         public AuthResponse login(AuthRequest req) {
-                System.out.println("LOGIN DEBUG: Attempting login for email: [" + req.getEmail() + "]");
+                String email = req.getEmail().toLowerCase();
+                System.out.println("LOGIN DEBUG: Attempting login for email: [" + email + "]");
                 try {
                         authManager.authenticate(
                                         new UsernamePasswordAuthenticationToken(
-                                                        req.getEmail(),
+                                                        email,
                                                         req.getPassword()));
                 } catch (Exception e) {
-                        System.out.println("LOGIN DEBUG: Authentication failed for email: [" + req.getEmail() + "]");
+                        System.out.println("LOGIN DEBUG: Authentication failed for email: [" + email + "]");
                         System.out.println(
                                         "LOGIN DEBUG: Exception: " + e.getClass().getName() + " - " + e.getMessage());
 
                         // Debugging usage
-                        userRepo.findByEmail(req.getEmail()).ifPresentOrElse(
+                        userRepo.findByEmail(email).ifPresentOrElse(
                                         u -> {
                                                 System.out.println("LOGIN DEBUG: User found in DB.");
                                                 System.out.println("LOGIN DEBUG: Role: " + u.getRole());
@@ -62,7 +64,7 @@ public class AuthService {
                         throw e;
                 }
 
-                User user = userRepo.findByEmail(req.getEmail()).orElseThrow();
+                User user = userRepo.findByEmail(email).orElseThrow();
 
                 String fullName = "User";
                 if (user.getRole() == User.Role.ADMIN) {
@@ -77,18 +79,15 @@ public class AuthService {
                                 user.getEmail(),
                                 user.getRole().name());
 
-                return new AuthResponse(
-                                token,
-                                user.getEmail(),
-                                user.getRole().name(),
-                                fullName);
+                return new AuthResponse(token, user.getEmail(), user.getRole().name(), fullName);
         }
 
         public void createDoctor(DoctorRequest req) {
+                String email = req.getEmail().toLowerCase();
 
                 User user = new User(
                                 null,
-                                req.getEmail(),
+                                email,
                                 encoder.encode(req.getPassword()),
                                 User.Role.DOCTOR,
                                 true);
@@ -110,10 +109,11 @@ public class AuthService {
         }
 
         public void createPatient(PatientRequest req) {
+                String email = req.getEmail().toLowerCase();
 
                 User user = new User(
                                 null,
-                                req.getEmail(),
+                                email,
                                 encoder.encode(req.getPassword()),
                                 User.Role.PATIENT,
                                 true);
