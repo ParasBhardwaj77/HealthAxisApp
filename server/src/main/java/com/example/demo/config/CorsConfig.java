@@ -9,16 +9,19 @@ import java.util.List;
 @Configuration
 public class CorsConfig {
 
+    @org.springframework.beans.factory.annotation.Value("${app.frontend.url}")
+    private String frontendUrl;
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
         // Allow both with and without trailing slash
         config.setAllowedOrigins(
-                List.of("http://localhost:5173", "http://localhost:5174",
+                List.of("http://localhost:5173",
+                        "http://localhost:5174",
                         "https://health-axis-app.vercel.app",
-                        "https://health-axis-app.vercel.app/",
-                        "https://exquisite-balance-production-592a.up.railway.app"));
+                        frontendUrl));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 
         // Explicitly list critical headers for authentication
